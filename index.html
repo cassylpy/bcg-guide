@@ -1,0 +1,1675 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>卡介苗灌注小幫手</title>
+<meta name="description" content="膀胱內卡介苗（BCG）灌注治療的全程提醒：灌注前準備、停留計時、排泄物處理、每日飲水、療程與副作用紀錄。">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#1F4B43">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="卡介苗小幫手">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
+<link rel="icon" href="./icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Cloudflare Web Analytics：只統計頁面瀏覽、來源、裝置與載入速度，不使用 cookie，不辨識個人 -->
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js"
+  data-cf-beacon='{"token": "cdd2dbd4009c47cc8d2e301e5fc0a29b"}'></script>
+
+<!--
+  Umami（選用，尚未啟用）：Cloudflare 不支援自訂事件，若日後需要記錄
+  timer_complete、timer_abort、symptom_log 等九個事件，於此填入端點即可。
+  <script defer src="https://你的umami網域/script.js" data-website-id="你的ID"></script>
+-->
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#14241F; --paper:#E9EFEC; --surface:#FFFFFF;
+  --pine:#1F4B43; --pine-deep:#143430; --pine-soft:#D6E4DE;
+  --amber:#B96A12; --amber-soft:#FBEEDC;
+  --clay:#A32E22; --clay-soft:#F8E6E3;
+  --muted:#5E6E69; --line:#C6D4CE;
+  --sans:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  --serif:"Noto Serif TC","Songti TC","PMingLiU",serif;
+  --tabh:64px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:var(--sans);background:var(--paper);color:var(--ink);
+  font-size:17px;line-height:1.75;-webkit-text-size-adjust:100%;
+  padding-bottom:calc(var(--tabh) + env(safe-area-inset-bottom))}
+h1,h2,h3{font-family:var(--serif);line-height:1.4;margin:0}
+p{margin:0 0 .7em}
+ul,ol{margin:.2em 0 .9em;padding-left:1.35em}
+li{margin-bottom:.35em}
+button{font-family:inherit;font-size:inherit;cursor:pointer}
+input[type=checkbox]{accent-color:var(--pine)}
+a{color:var(--pine)}
+
+.topbar{position:sticky;top:0;z-index:30;background:var(--pine);color:#fff;
+  padding:calc(env(safe-area-inset-top) + 10px) 18px 10px;
+  display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.topbar h1{font-size:19px;font-weight:700;color:#fff;letter-spacing:.02em}
+.topbar .sub{font-size:13px;color:#A9C6BC;font-family:var(--sans)}
+
+main{max-width:560px;margin:0 auto;padding:16px 16px 28px}
+.page{display:none}
+.page.on{display:block}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;
+  padding:18px;margin-bottom:14px}
+.card > h2{font-size:18px;margin-bottom:10px}
+.lead{font-size:15px;color:var(--muted);margin-bottom:14px}
+
+/* 階段切換 */
+.seg{display:flex;background:#DCE5E1;border-radius:11px;padding:4px;margin-bottom:14px;gap:3px}
+.seg button{flex:1;border:none;background:none;border-radius:8px;padding:9px 2px;
+  font-size:14px;font-weight:500;color:var(--muted)}
+.seg button.on{background:var(--surface);color:var(--pine);font-weight:700;
+  box-shadow:0 1px 3px rgba(20,36,31,.12)}
+.stage{display:none}
+.stage.on{display:block}
+
+/* 計時器 */
+.clock{background:var(--surface);border:1px solid var(--line);border-radius:18px;
+  padding:20px 18px 22px;margin-bottom:14px;text-align:center}
+.dial{position:relative;width:min(280px,74vw);margin:2px auto 6px}
+.dial svg{display:block;width:100%;height:auto}
+.ring-track{fill:none;stroke:var(--pine-soft);stroke-width:9}
+.ring-fill{fill:none;stroke:var(--pine);stroke-width:9;stroke-linecap:round;
+  transform:rotate(-90deg);transform-origin:100px 100px;transition:stroke-dashoffset .5s linear}
+.paused .ring-fill{stroke:var(--muted)}
+.figure-bed{fill:#F2F6F4;stroke:var(--line);stroke-width:2}
+.figure-body{fill:var(--pine)}
+.figure-line{stroke:var(--pine);stroke-width:4;stroke-linecap:round;fill:none}
+.figure-face{fill:#fff}
+.pillow{fill:var(--amber-soft);stroke:var(--amber);stroke-width:2.5}
+.figure-limb{stroke:var(--pine);stroke-width:15;stroke-linecap:round;stroke-linejoin:round;fill:none}
+.arm{stroke:#F2F6F4;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;fill:none}
+.pillow-off{fill:none;stroke:var(--line);stroke-width:2.5;stroke-dasharray:5 4}
+.cross{stroke:var(--clay);stroke-width:4;stroke-linecap:round}
+.hourglass{fill:none;stroke:var(--pine);stroke-width:4;stroke-linejoin:round}
+
+.pose-name{font-family:var(--serif);font-size:28px;font-weight:700;margin:6px 0 2px}
+.pose-hint{color:var(--muted);font-size:15px;margin-bottom:12px;min-height:1.75em}
+.count{font-size:clamp(2.6rem,14vw,3.6rem);font-weight:900;line-height:1;
+  font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.count-label{font-size:14px;color:var(--muted);margin-top:6px}
+.steps{display:flex;gap:5px;justify-content:center;margin-top:16px}
+.step{flex:1;max-width:44px;height:5px;border-radius:3px;background:var(--pine-soft)}
+.step.done{background:var(--pine)}
+.step.now{background:var(--amber)}
+
+.btnrow{display:flex;gap:10px;margin-top:12px}
+.btn{flex:1;border:none;border-radius:11px;padding:15px 10px;font-weight:700;
+  font-size:17px;background:var(--pine);color:#fff;transition:transform .08s ease}
+.btn:active{transform:scale(.98)}
+.btn.ghost{background:var(--surface);color:var(--pine);border:1.5px solid var(--pine)}
+.btn.quiet{background:#EBF0ED;color:var(--muted);border:1.5px solid var(--line);font-weight:500}
+.btn.wide{width:100%;flex:none}
+.btn:focus-visible,.tab:focus-visible,input:focus-visible,select:focus-visible,.seg button:focus-visible{
+  outline:3px solid var(--amber);outline-offset:2px}
+
+.setting{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:11px 0;border-top:1px solid var(--line)}
+.setting:first-of-type{border-top:none}
+.setting label{font-size:15px;color:var(--muted)}
+.setting .sublabel{display:block;font-size:13px;color:var(--muted);opacity:.85;margin-top:-3px}
+select,input[type=date],input[type=time],input[type=text],input[type=number],textarea{
+  font-family:inherit;font-size:16px;padding:9px 11px;border:1.5px solid var(--line);
+  border-radius:9px;background:#fff;color:var(--ink)}
+textarea{width:100%;resize:vertical;min-height:64px;line-height:1.6}
+
+/* 檢核清單 */
+.check{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+.check:first-of-type{border-top:none}
+.check input{width:24px;height:24px;flex:none;margin-top:2px}
+.check .t{flex:1}
+.check .t b{font-weight:700;display:block}
+.check .t span{font-size:14px;color:var(--muted);line-height:1.6}
+.check.done .t b{color:var(--muted);text-decoration:line-through}
+
+.strip{display:flex;align-items:center;gap:14px}
+.strip .big{font-size:30px;font-weight:900;font-variant-numeric:tabular-nums;line-height:1.1}
+.strip .big.amber{color:var(--amber)}
+.strip .txt{flex:1;font-size:14px;color:var(--muted);line-height:1.55}
+.badge{display:inline-block;background:var(--amber-soft);color:var(--amber);
+  border-radius:999px;padding:2px 10px;font-size:13px;font-weight:700}
+
+/* 飲水 */
+.water-row{display:flex;align-items:center;gap:14px;margin:6px 0 4px}
+.water-amt{font-size:34px;font-weight:900;font-variant-numeric:tabular-nums;line-height:1}
+.water-amt small{font-size:.4em;font-weight:500;color:var(--muted);margin-left:4px}
+.cups{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0 4px}
+.cup{width:30px;height:38px;border:2px solid var(--line);border-radius:4px 4px 9px 9px;background:#fff}
+.cup.full{background:var(--pine);border-color:var(--pine)}
+
+/* 症狀 */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 14px}
+.chip{border:1.5px solid var(--line);background:#fff;border-radius:999px;
+  padding:8px 14px;font-size:15px;color:var(--ink)}
+.chip.on{background:var(--pine);border-color:var(--pine);color:#fff;font-weight:700}
+.chip.warn.on{background:var(--clay);border-color:var(--clay)}
+.chip.mid.on{background:var(--amber);border-color:var(--amber)}
+.sev{display:flex;gap:8px;margin:6px 0 14px}
+.sev button{flex:1;border:1.5px solid var(--line);background:#fff;border-radius:10px;
+  padding:11px 6px;font-size:14px;line-height:1.4;color:var(--ink)}
+.sev button.on{border-color:var(--pine);background:var(--pine-soft);font-weight:700}
+.advice{border-radius:11px;padding:14px 16px;font-size:15.5px;margin:4px 0 14px;display:none}
+.advice.on{display:block}
+.advice.ok{background:var(--pine-soft);color:var(--pine-deep)}
+.advice.hold{background:var(--amber-soft);color:#7A4508}
+.advice.stop{background:var(--clay-soft);color:var(--clay);font-weight:700}
+.loglist{border-top:1px solid var(--line);margin-top:6px}
+.logitem{border-bottom:1px solid var(--line);padding:11px 0;font-size:15px}
+.logitem .d{font-weight:700;font-variant-numeric:tabular-nums}
+.logitem .s{color:var(--muted);font-size:14px}
+
+.section-h{font-family:var(--serif);font-size:22px;font-weight:700;margin:26px 0 10px}
+.note{background:var(--pine-soft);border-radius:11px;padding:13px 15px;font-size:15.5px;color:var(--pine-deep)}
+.note.amber{background:var(--amber-soft);color:#7A4508}
+.warn{background:var(--clay-soft);border-left:5px solid var(--clay);border-radius:0 11px 11px 0;
+  padding:14px 16px;margin-bottom:12px}
+.warn h3{font-size:17px;color:var(--clay);margin-bottom:6px;font-family:var(--sans);font-weight:700}
+.warn ul{margin-bottom:0}
+dl{margin:0}
+dt{font-weight:700;margin-top:12px}
+dt:first-child{margin-top:0}
+dd{margin:2px 0 0;color:var(--muted);font-size:15.5px}
+
+table{width:100%;border-collapse:collapse;font-size:15px}
+th,td{border-bottom:1px solid var(--line);padding:7px 5px;text-align:left;vertical-align:middle}
+th{font-size:13px;color:var(--muted);font-weight:500}
+td.n{width:52px;font-weight:700;font-variant-numeric:tabular-nums}
+table input{font-size:15px;padding:6px 7px;width:100%;border-radius:7px}
+.group-h{font-size:15px;font-weight:700;color:var(--pine);background:var(--pine-soft);
+  padding:7px 10px;border-radius:8px;margin:18px 0 6px}
+.group-h:first-child{margin-top:0}
+
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;
+  background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+.tab{flex:1;border:none;background:none;padding:9px 2px 8px;color:var(--muted);
+  font-size:11.5px;display:flex;flex-direction:column;align-items:center;gap:3px;height:var(--tabh)}
+.tab svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;
+  stroke-linecap:round;stroke-linejoin:round}
+.tab.on{color:var(--pine);font-weight:700}
+.tab.on svg{stroke-width:2.2}
+
+.refs{border:1px solid var(--line);border-radius:12px;background:var(--surface);
+  padding:0 16px;margin-top:20px;font-size:14px;color:var(--muted)}
+.refs summary{cursor:pointer;padding:12px 0;font-size:14px;color:var(--muted);list-style:none}
+.refs summary::-webkit-details-marker{display:none}
+.refs summary::before{content:"▸ ";font-size:12px}
+.refs[open] summary::before{content:"▾ "}
+.refs[open]{padding-bottom:14px}
+.refs ul{padding-left:1.2em;margin:.4em 0}
+.refs li{margin-bottom:.3em;line-height:1.6}
+.tel{font-size:22px;font-weight:700;text-decoration:none;display:inline-block}
+.tel.sm{font-size:18px}
+.ext{color:var(--muted);font-size:15px;margin-left:4px}
+.booking{display:inline-block;margin-top:6px;font-size:15px;font-weight:700;
+  border:1.5px solid var(--pine);border-radius:8px;padding:5px 12px;text-decoration:none}
+.foot{font-size:13px;color:var(--muted);text-align:center;margin-top:18px;line-height:1.7}
+.toast{position:fixed;left:50%;bottom:calc(var(--tabh) + 18px);transform:translateX(-50%);
+  background:var(--ink);color:#fff;padding:11px 18px;border-radius:999px;font-size:15px;
+  z-index:60;opacity:0;pointer-events:none;transition:opacity .25s;max-width:88vw;text-align:center}
+.toast.on{opacity:1}
+
+@media (prefers-reduced-motion:reduce){*{transition:none !important;animation:none !important}}
+@media print{
+  .tabs,.topbar,.btnrow,.clock,.btn,.seg{display:none !important}
+  .page,.stage{display:block !important}
+  body{background:#fff;padding:0}
+  .card{border:1px solid #999;break-inside:avoid}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <h1>卡介苗灌注小幫手</h1>
+  <span class="sub" id="todayStr"></span>
+</header>
+
+<main>
+
+<div id="a2hs" style="display:none;background:var(--amber-soft);border:1.5px solid var(--amber);
+  border-radius:12px;padding:14px 16px;margin-bottom:14px;font-size:15px;line-height:1.7;color:#7A4508">
+  <b style="display:block;font-size:16px;margin-bottom:4px">請把這個頁面加到主畫面</b>
+  <span id="a2hsHow"></span>
+  <div style="margin-top:6px">用瀏覽器開啟時，手機可能會在幾天後自動清掉您填的紀錄。加到主畫面就不會。</div>
+  <button id="a2hsClose" style="margin-top:10px;border:1.5px solid var(--amber);background:#fff;
+    color:var(--amber);border-radius:8px;padding:6px 14px;font-size:14px;font-weight:700">知道了</button>
+</div>
+
+<!-- ══ 今天 ══ -->
+<section class="page on" id="p-today">
+  <div class="seg" id="segStage">
+    <button data-s="pre" class="on">灌注前</button>
+    <button data-s="dwell">灌注中</button>
+    <button data-s="home">返家</button>
+  </div>
+
+  <!-- 灌注前 -->
+  <div class="stage on" id="s-pre">
+    <div class="card">
+      <h2>這次灌注時間</h2>
+      <p class="lead">填上日期和時間，會提醒您什麼時候開始不要喝水。家屬也可以先幫病人設定好。</p>
+      <div class="setting">
+        <label for="instDate">日期</label>
+        <input type="date" id="instDate">
+      </div>
+      <div class="setting">
+        <label for="instTime">時間</label>
+        <input type="time" id="instTime" value="09:00">
+      </div>
+      <div id="instConfirm" style="font-size:15px;color:var(--pine);font-weight:700;
+        background:var(--pine-soft);border-radius:9px;padding:9px 13px;margin-top:4px"></div>
+      <div class="strip" style="margin-top:12px">
+        <div class="big" id="fastCount">--</div>
+        <div class="txt" id="fastTxt">灌注前 4～6 小時開始不要喝水。膀胱裡的殘尿會把藥物稀釋掉，濃度不夠效果就會打折。吃藥可以用少量水吞服。</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>出門前確認</h2>
+      <div class="check"><input type="checkbox" data-ck="c1"><div class="t">
+        <b>已經 4～6 小時沒喝水</b><span>包括茶、咖啡和湯。需要吃藥時可以用少量水吞服，口渴可以漱口不吞下去。</span></div></div>
+      <div class="check"><input type="checkbox" data-ck="c2"><div class="t">
+        <b>進治療室前先排尿</b><span>把膀胱排空，藥物才不會被稀釋。</span></div></div>
+      <div class="check"><input type="checkbox" data-ck="c3"><div class="t">
+        <b>沒有發燒、嚴重血尿或排尿疼痛</b><span>有的話先告訴醫護人員，可能需要延後這一次。延後一週不會影響整個療程。</span></div></div>
+      <div class="check"><input type="checkbox" data-ck="c4"><div class="t">
+        <b>正在吃的藥都已告知醫師</b><span>免疫抑制劑、骨髓抑制劑、某些抗生素和放射線治療會影響卡介苗作用。</span></div></div>
+      <div class="check"><input type="checkbox" data-ck="c5"><div class="t">
+        <b>帶了這支手機</b><span>灌注後要用它計時。</span></div></div>
+      <div class="btnrow"><button class="btn quiet wide" id="btnClearCk">清除勾選，準備下一次</button></div>
+    </div>
+
+    <div class="note">限水是為了不讓殘尿稀釋藥物，只需要灌注前那幾個小時。前一晚可以正常喝水，長期喝太少反而容易泌尿道感染。</div>
+  </div>
+
+  <!-- 灌注中 -->
+  <div class="stage" id="s-dwell">
+    <div class="clock" id="clock">
+      <div class="dial">
+        <svg viewBox="0 0 200 200" role="img" aria-labelledby="poseTitle">
+          <title id="poseTitle">目前狀態與剩餘時間</title>
+          <circle class="ring-track" cx="100" cy="100" r="90"></circle>
+          <circle class="ring-fill" id="ring" cx="100" cy="100" r="90"
+                  stroke-dasharray="565.5" stroke-dashoffset="565.5"></circle>
+          <g id="figure" transform="translate(100,100)"></g>
+        </svg>
+      </div>
+      <div class="pose-name" id="poseName">還沒開始</div>
+      <div class="pose-hint" id="poseHint">拔掉導尿管後，按「開始計時」。</div>
+      <div class="count" id="count">00:00</div>
+      <div class="count-label" id="countLabel">藥物停留時間</div>
+      <div class="steps" id="steps"></div>
+      <div class="btnrow">
+        <button class="btn" id="btnMain">開始計時</button>
+        <button class="btn ghost" id="btnNext">換下一個姿勢</button>
+      </div>
+      <div class="btnrow">
+        <button class="btn quiet" id="btnReset">重新開始</button>
+        <button class="btn quiet" id="btnTest">試聽提醒聲</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="setting">
+        <label for="turnMin">多久換一次姿勢
+          <span class="sublabel">六個姿勢各停留這麼久，總時間自動算出</span></label>
+        <select id="turnMin">
+          <option value="10">每 10 分鐘</option>
+          <option value="15">每 15 分鐘</option>
+          <option value="20" selected>每 20 分鐘</option>
+        </select>
+      </div>
+      <div id="planNote" style="font-size:15px;color:var(--pine);font-weight:700;
+        background:var(--pine-soft);border-radius:9px;padding:10px 13px;margin:6px 0 4px"></div>
+      <div class="setting">
+        <label for="optTurn">提醒翻身
+          <span class="sublabel">關掉後仍會計時，只是不提醒換姿勢</span></label>
+        <input type="checkbox" id="optTurn" checked style="width:22px;height:22px">
+      </div>
+      <div class="setting">
+        <label for="optSound">發出提醒聲</label>
+        <input type="checkbox" id="optSound" checked style="width:22px;height:22px">
+      </div>
+      <div class="setting">
+        <label for="optAwake">計時中螢幕不休眠</label>
+        <input type="checkbox" id="optAwake" checked style="width:22px;height:22px">
+      </div>
+      <div id="wakeStatus" style="font-size:14px;color:var(--muted);padding-top:4px"></div>
+    </div>
+
+    <div class="note">停留滿 1 小時就有治療效果，2 小時之內都算完成。真的忍不住可以提早解尿，不要因此中斷整個療程——請在下次回診時告訴醫護人員。</div>
+
+    <div class="note amber"><b>要不要翻身，請依照您的醫療團隊指示。</b>如果醫師或護理人員請您變換姿勢，這裡的提醒會照時間告訴您；如果沒有特別交代，可以把上面的「提醒翻身」關掉，找一個舒服的姿勢等到時間結束就好。</div>
+
+    <div class="note amber">計時期間請不要按電源鍵關掉螢幕。手機螢幕關掉後，翻身提醒有可能不會響，這是手機瀏覽器的限制。不過時間仍然照算，重新打開時會告訴您現在該是什麼姿勢。</div>
+  </div>
+
+  <!-- 返家 -->
+  <div class="stage" id="s-home">
+    <div id="voidBanner" style="display:none;background:var(--pine);color:#fff;border-radius:12px;
+      padding:14px 16px;margin-bottom:14px;font-weight:700;font-size:17px">
+      可以去排尿了
+    </div>
+
+    <div class="card">
+      <h2>消毒倒數</h2>
+      <div class="strip">
+        <div class="big amber" id="bleachLeft">尚未開始</div>
+        <div class="txt" id="bleachTxt">按下「開始計時」後會自動開始算 6 小時。</div>
+      </div>
+      <div id="bleachDetail" style="display:none;margin-top:12px">
+        <ul style="font-size:15.5px;margin-bottom:0">
+          <li>坐著解尿，蓋上馬桶蓋，沖兩次。</li>
+          <li>馬桶內加入和尿液差不多量的漂白水（不用先稀釋，大約 1～2 個馬克杯），蓋上蓋子靜置 15 分鐘再沖掉。</li>
+          <li>排尿後用<b>肥皂和清水</b>清洗手部、會陰與大腿內側。除了避免污染，也能減少藥物對皮膚的刺激。</li>
+          <li>尿液沾到衣物，和其他衣物分開清洗。</li>
+          <li>使用尿失禁墊的人，先倒漂白水浸濕，再裝進塑膠袋丟棄。</li>
+          <li>這段期間家人暫時不要與您共用馬桶。</li>
+        </ul>
+      </div>
+      <div class="btnrow"><button class="btn ghost wide" id="btnBleach">現在開始算 6 小時</button></div>
+    </div>
+
+    <div class="card">
+      <h2>返家後排尿須知</h2>
+      <div class="check"><input type="checkbox" data-ck="p1"><div class="t">
+        <b>坐著解尿</b><span>男性也要坐著。站著解會噴濺，尿液裡有活的卡介苗菌。</span></div></div>
+      <div class="check"><input type="checkbox" data-ck="p2"><div class="t">
+        <b>馬桶裡加漂白水</b><span>倒入和尿液差不多的量，不用先稀釋，大約 1～2 個馬克杯。蓋上蓋子靜置 15 分鐘再沖掉。</span></div></div>
+      <div class="check"><input type="checkbox" data-ck="p3"><div class="t">
+        <b>用肥皂和清水清洗手部與會陰</b><span>6 小時內每次排尿後都要做。</span></div></div>
+      <div class="check"><input type="checkbox" data-ck="p4"><div class="t">
+        <b>開始喝水</b><span>第一次排尿之後就可以恢復喝水，幫助沖淡尿液、減輕灼痛。</span></div></div>
+      <p style="font-size:15px;color:var(--muted);margin:12px 0 0">第一次排尿有灼熱感是正常的，不是感染。</p>
+      <div class="btnrow"><button class="btn quiet wide" id="btnClearPost">清除勾選，準備下一次</button></div>
+    </div>
+
+    <div class="card">
+      <h2>今天喝了多少水</h2>
+      <div class="water-row">
+        <div class="water-amt" id="waterAmt">0<small>cc</small></div>
+        <div class="txt" style="flex:1;font-size:14px;color:var(--muted)" id="waterTxt"></div>
+      </div>
+      <div class="cups" id="cups"></div>
+      <div class="btnrow">
+        <button class="btn" id="btnCupAdd">加一杯（250 cc）</button>
+        <button class="btn quiet" id="btnCupSub">減一杯</button>
+      </div>
+      <div class="setting" style="margin-top:10px">
+        <label for="waterGoal">每日目標</label>
+        <select id="waterGoal">
+          <option value="2000">2000 cc</option>
+          <option value="2500" selected>2500 cc</option>
+          <option value="3000">3000 cc</option>
+          <option value="1500">1500 cc（醫師指示限水）</option>
+        </select>
+      </div>
+      <div class="note amber" style="margin-top:12px">心臟衰竭、腎功能不全或醫師交代要限水的人，請依照醫師指示，不要照這裡的目標喝。</div>
+    </div>
+
+    <div class="card">
+      <h2>這幾天的提醒</h2>
+      <ul style="margin-bottom:0">
+        <li>灌注後 48 小時內多喝水，尿液變淡可以減輕灼痛與頻尿。</li>
+        <li>咖啡、濃茶、酒精會加重排尿不適，這幾天先避開。</li>
+        <li>發燒時充分臥床休息，可服用醫師處方的止痛退燒藥。</li>
+        <li>戒菸對減少復發有直接幫助。</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>家人要注意</h2>
+      <ul style="margin-bottom:0">
+        <li>灌注後前 6 小時，家人暫時不要與您共用馬桶。</li>
+        <li>沖水前先蓋上馬桶蓋，並沖兩次。</li>
+        <li>家人清理灑出的尿液時請戴手套。</li>
+        <li>男性在灌注後一星期內行房請使用保險套；女性治療期間須避孕，也不宜哺乳。</li>
+      </ul>
+    </div>
+
+    <div class="note">大約七成的人會出現排尿不適或類似感冒的反應，多數在幾天內緩解。這不代表治療出了問題。</div>
+  </div>
+</section>
+
+<!-- ══ 提醒 ══ -->
+<section class="page" id="p-remind">
+  <div class="card">
+    <h2>下次灌注</h2>
+    <div class="strip">
+      <div class="big" id="nextCount">尚未設定</div>
+      <div class="txt" id="nextTxt">設定後會顯示倒數，也可以加進手機行事曆。</div>
+    </div>
+    <p class="lead" style="margin-bottom:6px">這裡和「今天－灌注前」設定的是同一次，改任一邊都會同步。</p>
+    <div class="setting"><label for="nextDate">日期</label><input type="date" id="nextDate"></div>
+    <div class="setting"><label for="nextTime">時間</label><input type="time" id="nextTime" value="09:00"></div>
+    <div class="setting"><label for="nextPlace">地點</label>
+      <input type="text" id="nextPlace" placeholder="例：泌尿科門診" style="max-width:58%"></div>
+    <div class="btnrow"><button class="btn ghost" id="btnICS">下載行事曆檔</button><button class="btn ghost" id="btnGCal">用 Google 日曆</button></div>
+    <p class="foot" style="text-align:left;margin-top:12px">
+      行事曆會自動設兩個提醒：前一天，以及提醒您什麼時候開始不要喝水（早上的灌注會改在前一晚提醒，不會半夜響）。<br>Google 日曆的提醒時間依您帳號的預設值，如需上述提醒請改用「下載行事曆檔」。
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>下次膀胱鏡</h2>
+    <div class="strip">
+      <div class="big" id="scopeCount">尚未設定</div>
+      <div class="txt">膀胱鏡追蹤通常每 3～6 個月一次，由醫師安排。</div>
+    </div>
+    <div class="setting"><label for="scopeDate">日期</label><input type="date" id="scopeDate"></div>
+    <div class="btnrow"><button class="btn ghost" id="btnScopeICS">下載行事曆檔</button><button class="btn ghost" id="btnScopeGCal">用 Google 日曆</button></div>
+  </div>
+
+  <div class="card">
+    <h2>聯絡窗口</h2>
+    <div class="setting">
+      <div>
+        <div style="font-weight:700;margin-bottom:2px">泌尿道癌個案管理師　林佩諭</div>
+        <a class="tel" href="tel:0975361081">0975-361081</a>
+        <div style="margin-top:4px"><a class="tel sm" href="tel:0224329292,2355">02-2432-9292</a>
+          <span class="ext">轉 2355</span></div>
+      </div>
+    </div>
+    <div class="setting">
+      <div>
+        <div style="font-weight:700;margin-bottom:2px">泌尿科門診</div>
+        <a class="tel sm" href="tel:0224313131,2363">02-2431-3131</a>
+        <span class="ext">轉 2363、2364</span>
+        <div><a href="https://register.cgmh.org.tw/Department_WEEK/2/22600A" target="_blank" rel="noopener"
+          class="booking">網路掛號</a></div>
+      </div>
+    </div>
+    <div class="setting">
+      <div>
+        <div style="font-weight:700;margin-bottom:2px">血液腫瘤科門診</div>
+        <a class="tel sm" href="tel:0224329292,2240">02-2432-9292</a>
+        <span class="ext">轉 2240、2241、2242</span>
+        <div><a href="https://register.cgmh.org.tw/Department_WEEK/E/E1400H" target="_blank" rel="noopener"
+          class="booking">網路掛號</a></div>
+      </div>
+    </div>
+    <div class="setting">
+      <div>
+        <div style="font-weight:700;margin-bottom:2px">急診　基隆本院區</div>
+        <div style="font-size:16px">基隆市安樂區麥金路 222 號</div>
+        <div><a href="https://www.google.com/maps/search/?api=1&query=基隆長庚紀念醫院+基隆市安樂區麥金路222號"
+          target="_blank" rel="noopener" class="booking">開啟地圖導航</a>
+          <a class="tel sm" href="tel:119" style="margin-left:10px">或撥 119</a></div>
+        <div style="font-size:15px;color:var(--clay);margin-top:6px">情人湖院區沒有急診，請直接到本院區。</div>
+      </div>
+    </div>
+    <p class="foot" style="text-align:left;margin-top:10px">手機上點電話號碼可以直接撥號，點「網路掛號」會開啟長庚掛號網頁。</p>
+  </div>
+</section>
+
+<!-- ══ 紀錄 ══ -->
+<section class="page" id="p-log">
+  <div class="card">
+    <h2>今天不舒服嗎</h2>
+    <p class="lead">記下來，回診時給醫師看。這裡不做判斷，只提醒您什麼情況要聯絡醫療團隊。</p>
+    <div class="chips" id="sxChips"></div>
+    <div class="sev" id="sevBtns">
+      <button data-v="1">輕微<br>兩天內就好</button>
+      <button data-v="2">明顯<br>超過兩天</button>
+      <button data-v="3">很不舒服<br>受不了</button>
+    </div>
+    <div class="advice" id="advice"></div>
+    <textarea id="sxNote" placeholder="其他想記下來的事（選填）"></textarea>
+    <div class="btnrow"><button class="btn wide" id="btnSaveLog">儲存今天的紀錄</button></div>
+    <div class="loglist" id="logList"></div>
+  </div>
+
+  <div id="autoNote" style="display:none;background:var(--pine-soft);border-radius:12px;
+    padding:13px 15px;margin-bottom:14px;font-size:15.5px;color:var(--pine-deep)">
+    <span id="autoNoteTxt"></span>
+    <button id="btnUndoAuto" style="margin-left:8px;border:1.5px solid var(--pine);background:#fff;
+      color:var(--pine);border-radius:8px;padding:5px 12px;font-size:14px;font-weight:700">刪掉這筆</button>
+  </div>
+
+  <div class="card">
+    <div class="group-h">基本療程（誘導治療）每週 1 次，共 6 次</div>
+    <table><thead><tr><th>次數</th><th>日期</th><th>灌注後不適</th></tr></thead>
+      <tbody id="tbInduction"></tbody></table>
+    <div class="note" style="margin-top:14px">基本療程結束後休息約 6 週，再開始維持治療。</div>
+  </div>
+
+  <div class="card">
+    <div class="group-h">維持治療</div>
+    <div id="tbMaint"></div>
+  </div>
+
+  <div class="card">
+    <div class="group-h">膀胱鏡追蹤</div>
+    <table><thead><tr><th>次數</th><th>日期</th><th>次數</th><th>日期</th></tr></thead>
+      <tbody id="tbScope"></tbody></table>
+  </div>
+
+  <div class="card">
+    <div class="setting">
+      <label for="patCode">病人代碼
+        <span class="sublabel">個管師給您的編號，回診核對用。不填也可以使用</span></label>
+      <input type="text" id="patCode" placeholder="例：BCG-017" style="max-width:42%">
+    </div>
+    <div class="btnrow"><button class="btn wide" id="btnSummary">產生回診摘要</button></div>
+    <textarea id="summaryBox" readonly style="display:none;margin-top:10px;min-height:180px"></textarea>
+    <div class="btnrow"><button class="btn ghost wide" id="btnPrint">列印或存成 PDF</button></div>
+    <div class="btnrow">
+      <button class="btn quiet" id="btnExport">備份紀錄</button>
+      <button class="btn quiet" id="btnImport">還原紀錄</button>
+    </div>
+    <input type="file" id="fileImport" accept="application/json,.json" style="display:none">
+    <p class="foot" style="text-align:left;margin-top:10px">
+      換手機或清除瀏覽器資料前，請先備份。還原時會覆蓋目前這支手機上的紀錄。
+    </p>
+  </div>
+</section>
+
+<!-- ══ 須知 ══ -->
+<section class="page" id="p-info">
+  <div class="card">
+    <h2>卡介苗是什麼</h2>
+    <p>卡介苗（BCG）不是化學治療，是免疫治療。它原本是預防肺結核的疫苗，灌進膀胱可以刺激自己的免疫系統對抗表淺性膀胱腫瘤，是目前預防復發最有效的藥物。</p>
+    <p style="margin-bottom:0">藥物是活的、毒性減弱的牛結核菌。極少因為膀胱灌注而讓人得到結核病，但排出的尿液含有活菌，需要照規定處理。</p>
+  </div>
+
+  <div class="card">
+    <h2>治療時程</h2>
+    <dl>
+      <dt>什麼時候開始</dt><dd>切片檢查或經尿道腫瘤切除術後 2～4 週。</dd>
+      <dt>基本療程（誘導治療）</dt><dd>每週 1 次，連續 6 週，結束後休息約 6 週。</dd>
+      <dt>維持治療</dt><dd>基本療程結束後休息約 1.5 個月，接著做每週 1 次、連續 3 次；再隔 3 個月做一輪，之後每 6 個月做一輪，共五輪。時間點大約落在第 3、6、12、18、24 個月。</dd>
+      <dt>整個療程有幾次</dt><dd>基本療程 6 次加維持治療 15 次，共 <b>21 次</b>，前後約 2 年。實際安排由醫師依您的狀況決定，也可能提前結束或延長。</dd>
+      <dt>為什麼要做這麼久</dt><dd>只做前面 6 次的復發率，明顯高於有做維持治療的人。中途停掉會失去大部分的保護效果。</dd>
+    </dl>
+  </div>
+
+  <div class="card">
+    <h2>灌注前的準備</h2>
+    <ul>
+      <li>前 4～6 小時儘量不要喝水，包括茶、咖啡和湯。咖啡因會利尿，影響比開水更大。</li>
+      <li><b>需要吃藥時可以用少量水吞服</b>，不要因為限水而停掉平常的慢性病藥。口渴時可以漱口，不要吞下去。</li>
+      <li>進治療室前先排尿，把膀胱排空。</li>
+      <li>正在吃的所有藥都要告訴醫師。免疫抑制劑、骨髓抑制劑、某些抗生素和放射線治療會影響卡介苗作用。</li>
+      <li>有發燒、嚴重血尿或排尿疼痛，先告訴醫護人員，由醫師決定是否延後。延後一週不會影響整個療程。</li>
+    </ul>
+    <div class="note">限水是為了不讓殘尿把藥物稀釋掉，只需要灌注前那幾個小時。其他時間請正常喝水。</div>
+  </div>
+
+  <div class="card">
+    <h2>停留時間怎麼算才對</h2>
+    <p>藥物在膀胱裡停留 1～2 小時，六個姿勢各停留一段時間。<b>滿 1 小時就已經有治療效果</b>，超過 2 小時也不會更好。</p>
+    <p style="margin-bottom:0">如果真的忍不住提早解尿，不要因此覺得這次白做了，更不要因此放棄整個療程。下次回診時告訴醫護人員即可。</p>
+  </div>
+
+  <div class="card">
+    <h2>關於翻身</h2>
+    <p>傳統做法是每 15～20 分鐘換一個姿勢，讓藥物接觸膀胱各處。這個做法來自早年的推論，目的是避免藥物集中在膀胱底部。</p>
+    <p>近年的研究發現，灌入約 50 cc 的藥物時膀胱壁本來就會自然貼合，加上日常的翻動，藥物分布已經足夠。一項隨機試驗比較有翻身與沒翻身的病人，一年後復發率沒有差別。歐洲泌尿科護理學會也指出，沒有證據支持用翻身來改善藥物分布。</p>
+    <p style="margin-bottom:0">所以：<b>請依照您的醫療團隊指示</b>。如果團隊要求翻身，就照做，這支 App 會提醒您；如果覺得翻身太不舒服，或睡著了沒翻，不用焦慮，真正重要的是停留時間和完成整個療程。</p>
+  </div>
+
+  <div class="card">
+    <h2>灌注後 6 小時的處理</h2>
+    <p>尿液裡含有活的卡介苗菌，灌注後 6 小時內每一次排尿都要照下面做。</p>
+    <ul>
+      <li><b>坐著解尿</b>，男性也一樣。蓋上馬桶蓋，沖兩次。</li>
+      <li><b>馬桶內加漂白水</b>：倒入和尿液差不多量的漂白水，不用先稀釋，大約 1～2 個馬克杯。蓋上蓋子靜置 15 分鐘再沖掉。漂白水一般商店都買得到，品牌不拘。</li>
+      <li>排尿後用<b>肥皂和清水</b>清洗手部、會陰與大腿內側。除了避免污染，也能減少藥物對皮膚的刺激。只用清水沖不夠。</li>
+      <li>尿液沾到衣物，和其他衣物<b>分開清洗</b>。</li>
+      <li>使用尿失禁墊的人，先倒漂白水浸濕，再裝進塑膠袋丟棄。</li>
+      <li>這段期間家人暫時不要與您共用馬桶；家人清理灑出的尿液時請戴手套。</li>
+    </ul>
+    <div class="note">清洗會陰不只是為了避免污染，也能減少藥物殘留對皮膚的刺激，讓灼痛感輕一些。</div>
+  </div>
+
+  <div class="card">
+    <h2>常見副作用</h2>
+    <p>大約七成的人會出現局部或全身的反應，最常見的是化學性膀胱炎（排尿灼痛、頻尿）和全身倦怠。副作用通常在治療當天比較明顯，接下來幾天減輕或消失。</p>
+    <ul>
+      <li>類似感冒：發燒、發冷、頭痛、肌肉痠痛。</li>
+      <li>頻尿、排尿疼痛、夜尿、血尿。</li>
+    </ul>
+    <p style="margin-bottom:0">輕微發燒可以視為治療正在發揮作用。請充分休息、多喝水，疼痛或發燒服用醫師處方的止痛退燒藥。若難以忍受，聯絡醫師——醫師可以減量或延後下一次，<b>而不是只能停止治療</b>。</p>
+  </div>
+
+  <div class="card">
+    <h2>生活與家庭</h2>
+    <dl>
+      <dt>工作</dt><dd>事先和雇主討論，把治療的請假時間排好。</dd>
+      <dt>飲食</dt><dd>灌注後幾天避開咖啡、濃茶與酒精，會加重排尿不適。要喝酒請少量，每天不超過一瓶啤酒或一杯紅酒。</dd>
+      <dt>抽菸</dt><dd>戒菸能直接降低膀胱癌復發風險，是您自己能做的事情裡效果最大的一件。</dd>
+      <dt>性生活</dt><dd>男性在每次灌注後一星期內使用保險套；女性治療期間須避孕，懷疑懷孕請立刻告訴醫師，治療期間不宜哺乳。</dd>
+      <dt>看其他科</dt><dd>接受其他疾病治療時，一定要告訴醫師您正在做卡介苗治療。</dd>
+      <dt>泌尿道感染</dt><dd>治療期間若發生細菌性泌尿道感染，醫師會先停止灌注，直到症狀完全緩解。</dd>
+    </dl>
+  </div>
+  <details class="refs">
+    <summary>參考資料</summary>
+    <p>本內容依院內「膀胱內卡介苗灌注須知」與藥品仿單整理，並對照下列指引與研究補充：</p>
+    <ul>
+      <li>歐洲泌尿科護理學會（EAUN）膀胱內灌注治療指引，2026 年版</li>
+      <li>歐洲泌尿科醫學會（EAU）非肌肉侵犯性膀胱癌指引</li>
+      <li>美國泌尿科醫學會與泌尿腫瘤學會（AUA/SUO）指引</li>
+      <li>加拿大泌尿科醫學會（CUA）指引</li>
+      <li>TICE BCG 藥品處方資訊（Merck）</li>
+      <li>Khan MZ 等，灌注治療操作之整合性回顧，Urol Res Pract 2026</li>
+      <li>Hariri MK 等，灌注期間變換姿勢之隨機對照試驗，Afr J Urol 2023</li>
+      <li>EORTC 30962 試驗之副作用資料</li>
+    </ul>
+    <p style="margin-bottom:0">各國指引與藥品仿單在部分細節上並不一致。實際做法以您的醫療團隊指示為準；若內容與醫師交代的不同，請依醫師為準並告訴我們。</p>
+  </details>
+</section>
+
+<!-- ══ 警訊 ══ -->
+<section class="page" id="p-alert">
+  <div class="card" style="border-color:var(--clay)">
+    <h2 style="color:var(--clay)">立刻聯絡醫師或掛急診</h2>
+    <div class="warn">
+      <h3>過敏反應</h3>
+      <ul><li>呼吸困難、呼吸短促、哮喘</li><li>紅疹或蕁麻疹</li><li>臉部腫脹</li></ul>
+    </div>
+    <div class="warn">
+      <h3>可能是卡介苗感染</h3>
+      <ul>
+        <li>體溫超過 39.5°C 且持續 12 小時以上</li>
+        <li>體溫超過 38.5°C 且持續 2 天以上</li>
+        <li>咳嗽、盜汗、畏寒、極度疲倦、關節疼痛、皮膚癢</li>
+      </ul>
+    </div>
+    <div class="warn">
+      <h3>排尿問題</h3>
+      <ul>
+        <li>排尿灼熱到解不出來</li>
+        <li>嚴重血尿、尿中帶大量鮮血</li>
+        <li>嚴重疼痛或無法忍受的頻尿</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>儘速就醫</h2>
+    <ul>
+      <li>眼睛或皮膚變黃</li>
+      <li>白色或灰色糞便</li>
+      <li>發燒併發冷、頭痛、肌肉或關節疼痛持續 2 天以上，吃止痛退燒藥也無法緩解</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>不必急著跑急診，但要記錄下來</h2>
+    <ul style="margin-bottom:0">
+      <li>解尿灼痛、頻尿在 1～2 天內緩解</li>
+      <li>輕微發燒，吃退燒藥後改善</li>
+      <li>尿液略帶血色但很快變清</li>
+    </ul>
+    <div class="note" style="margin-top:12px">這些請記在「紀錄」頁，回診時給醫師看。症狀持續超過兩天，就要主動聯絡醫療團隊。</div>
+  </div>
+
+  <div class="card" style="border-color:var(--pine)">
+    <h2>需要聯絡我們</h2>
+    <div class="btnrow">
+      <a class="btn" href="tel:0975361081" style="text-align:center;text-decoration:none;line-height:1.4">
+        撥打個管師<br><span style="font-size:14px;font-weight:400">林佩諭　0975-361081</span></a>
+    </div>
+    <div class="setting" style="margin-top:6px">
+      <div>
+        <div style="font-weight:700;margin-bottom:2px">急診　基隆本院區</div>
+        <div style="font-size:16px">基隆市安樂區麥金路 222 號</div>
+        <div><a href="https://www.google.com/maps/search/?api=1&query=基隆長庚紀念醫院+基隆市安樂區麥金路222號"
+          target="_blank" rel="noopener" class="booking">開啟地圖導航</a>
+          <a class="tel sm" href="tel:119" style="margin-left:10px">或撥 119</a></div>
+        <div style="font-size:15px;color:var(--clay);margin-top:6px"><b>情人湖院區沒有急診</b>，請直接到本院區。</div>
+      </div>
+    </div>
+    <p class="foot" style="text-align:left;margin-top:12px">
+      門診與其他聯絡方式在「提醒」分頁。
+    </p>
+  </div>
+
+  <p class="foot">
+    <b>基隆長庚紀念醫院　癌症中心</b><br>
+    泌尿道癌個案管理師　林佩諭<br><br>
+    本內容依「膀胱內卡介苗灌注須知」整理，並對照國內外泌尿科指引補充，<br>
+    僅供衛教參考，不能取代醫師與護理人員的判斷。實際做法請以您的醫療團隊指示為準。<br><br>
+    您填寫的日期、症狀與飲水紀錄只存在這支手機裡，不會傳送到任何地方。<br>
+    本網站使用 Cloudflare 統計造訪人次，不使用 cookie，無法辨識您是誰，也不記錄病歷號或姓名。<br><br>
+    版本 v5.8（2026-09）
+  </p>
+</section>
+
+</main>
+
+<nav class="tabs" role="tablist">
+  <button class="tab on" data-p="today" role="tab" aria-selected="true">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>今天</button>
+  <button class="tab" data-p="remind" role="tab" aria-selected="false">
+    <svg viewBox="0 0 24 24"><path d="M18 9a6 6 0 1 0-12 0c0 5-2 6-2 6h16s-2-1-2-6"/><path d="M10.5 20a2 2 0 0 0 3 0"/></svg>提醒</button>
+  <button class="tab" data-p="log" role="tab" aria-selected="false">
+    <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="17" rx="2"/><path d="M8 3v3M16 3v3M8 11h8M8 16h5"/></svg>紀錄</button>
+  <button class="tab" data-p="info" role="tab" aria-selected="false">
+    <svg viewBox="0 0 24 24"><path d="M5 4h11l4 4v12H5z"/><path d="M9 12h7M9 16h5"/></svg>須知</button>
+  <button class="tab" data-p="alert" role="tab" aria-selected="false">
+    <svg viewBox="0 0 24 24"><path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg>警訊</button>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const KEY = "bcg-app-v2";
+
+let mem = {};
+const store = {
+  read(){ try{ return JSON.parse(localStorage.getItem(KEY)) || {}; }catch(e){ return mem; } },
+  write(o){ try{ localStorage.setItem(KEY, JSON.stringify(o)); }catch(e){ mem = o; } }
+};
+let data = Object.assign({ induction:{}, maint:{}, scope:{}, next:{}, contact:{},
+  opts:{}, checks:{}, water:{}, logs:[] }, store.read());
+const save = () => store.write(data);
+
+/* ══ 匿名使用統計 ══
+   只在頁面有載入 Umami 或 Plausible 時才送出，否則靜默略過。
+   送出的內容一律是「哪個功能被用了幾次」，不含任何可識別個人的資料。 */
+function track(name, props){
+  try{
+    if (window.umami && window.umami.track) window.umami.track(name, props || {});
+    else if (window.plausible) window.plausible(name, { props: props || {} });
+  }catch(e){}
+}
+
+let toastT;
+function toast(msg){
+  const t = $("#toast"); t.textContent = msg; t.classList.add("on");
+  clearTimeout(toastT); toastT = setTimeout(()=>t.classList.remove("on"), 2600);
+}
+const pad = n => String(n).padStart(2,"0");
+const mmss = ms => { ms = Math.max(0,ms); return pad(Math.floor(ms/60000)) + ":" + pad(Math.floor(ms/1000)%60); };
+const todayKey = () => { const d = new Date(); return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); };
+
+/* ══ 階段切換 ══ */
+$$("#segStage button").forEach(b => b.onclick = () => {
+  $$("#segStage button").forEach(x => x.classList.remove("on"));
+  b.classList.add("on");
+  $$(".stage").forEach(s => s.classList.remove("on"));
+  $("#s-" + b.dataset.s).classList.add("on");
+  track("stage_view", { stage: b.dataset.s });
+  window.scrollTo(0,0);
+});
+
+/* ══ 灌注前：限水倒數與檢核 ══ */
+function dayLabel(d){
+  const n = new Date();
+  const a = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const b = new Date(n.getFullYear(), n.getMonth(), n.getDate());
+  const diff = Math.round((a - b) / 86400000);
+  return diff === 0 ? "今天" : diff === 1 ? "明天" : diff === -1 ? "昨天"
+    : (d.getMonth()+1) + " 月 " + d.getDate() + " 日";
+}
+const hhmm = d => pad(d.getHours()) + ":" + pad(d.getMinutes());
+
+/* 灌注日期時間：灌注前頁與提醒頁共用同一組設定 */
+function instDT(){
+  const d = $("#instDate").value, t = $("#instTime").value || "09:00";
+  if (!d) return null;
+  const p = d.split("-").map(Number), q = t.split(":").map(Number);
+  return new Date(p[0], p[1]-1, p[2], q[0], q[1]);
+}
+function syncDT(from){
+  if (from === "inst"){
+    $("#nextDate").value = $("#instDate").value;
+    $("#nextTime").value = $("#instTime").value;
+  } else {
+    $("#instDate").value = $("#nextDate").value;
+    $("#instTime").value = $("#nextTime").value;
+  }
+  data.next.date = $("#nextDate").value;
+  data.next.time = $("#nextTime").value;
+  save(); renderFast(); renderNext();
+}
+
+function renderFast(){
+  const box = $("#fastCount"), txt = $("#fastTxt"), cf = $("#instConfirm");
+  const inst = instDT();
+  if (!inst){
+    box.style.fontSize = "22px"; box.textContent = "請選日期";
+    cf.textContent = ""; txt.textContent = "選好灌注日期與時間之後，這裡會提醒您什麼時候開始不要喝水。";
+    return;
+  }
+  const now = new Date();
+  const stop = new Date(inst.getTime() - 5*3600000);
+  const toStop = stop - now, toInst = inst - now;
+  const odd = inst.getHours() < 6;
+
+  cf.innerHTML = "灌注時間：" + dayLabel(inst) + " " + hhmm(inst) +
+    (odd ? '<br><span style="color:var(--clay)">這是半夜的時間，確定嗎？中午請選 12:00 PM</span>' : "");
+
+  if (toInst < -6*3600000){
+    box.style.fontSize = "22px"; box.textContent = "已經過了";
+    txt.textContent = "這次灌注的時間已經過去。完成了嗎？請到「紀錄」填上日期，並在這裡設定下一次。";
+  } else if (toInst <= 0){
+    box.style.fontSize = "22px"; box.textContent = "灌注時間到";
+    txt.textContent = "到治療室前記得先排尿。灌完藥之後請切到「灌注中」開始計時。";
+  } else if (toStop > 0){
+    /* 限水起點落在凌晨時，改用「前一晚睡前」的說法，病人比較做得到 */
+    const earlyMorning = stop.getHours() < 6;
+    const stopWord = earlyMorning
+      ? dayLabel(inst) + "前一晚睡覺前就不要再喝水，起床後也不要喝"
+      : dayLabel(stop) + " " + hhmm(stop) + " 之後就不要再喝水";
+    const days = Math.floor(toStop / 86400000);
+    box.style.fontSize = "30px";
+    if (days >= 1){
+      box.textContent = "還有 " + Math.ceil(toInst/86400000) + " 天";
+      txt.textContent = stopWord + "。這幾天請正常喝水，時間快到時這裡會顯示倒數。";
+    } else {
+      const h = Math.floor(toStop/3600000), m = Math.ceil(toStop%3600000/60000);
+      box.textContent = h > 0 ? h + " 小時 " + m + " 分" : m + " 分";
+      txt.textContent = "距離開始限水還有這些時間。" + stopWord +
+        "，膀胱裡的殘尿會稀釋藥物。吃藥可以用少量水吞服。";
+    }
+  } else {
+    box.style.fontSize = "22px"; box.textContent = "現在起別喝水";
+    const h = Math.floor(toInst/3600000), m = Math.ceil(toInst%3600000/60000);
+    txt.innerHTML = '<span class="badge">限水中</span> 距離灌注還有 ' +
+      (h>0 ? h + " 小時 " + m + " 分" : m + " 分") + "。茶、咖啡和湯也算。吃藥可用少量水吞服。";
+  }
+}
+["instDate","instTime"].forEach(id =>
+  $("#"+id).addEventListener("input", () => syncDT("inst")));
+
+$$("[data-ck]").forEach(el => {
+  el.checked = !!data.checks[el.dataset.ck];
+  el.closest(".check").classList.toggle("done", el.checked);
+  el.onchange = () => {
+    data.checks[el.dataset.ck] = el.checked; save();
+    el.closest(".check").classList.toggle("done", el.checked);
+  };
+});
+$("#btnClearPost").onclick = () => {
+  ["p1","p2","p3","p4"].forEach(k => {
+    delete data.checks[k];
+    const el = document.querySelector('[data-ck="' + k + '"]');
+    if (el){ el.checked = false; el.closest(".check").classList.remove("done"); }
+  });
+  save(); toast("已清除，可以準備下一次");
+};
+$("#btnClearCk").onclick = () => {
+  ["c1","c2","c3","c4","c5"].forEach(k => {
+    delete data.checks[k];
+    const el = document.querySelector('[data-ck="' + k + '"]');
+    if (el){ el.checked = false; el.closest(".check").classList.remove("done"); }
+  });
+  save(); toast("已清除，可以準備下一次");
+};
+
+/* ══ 灌注中：停留計時 ══ */
+const BED = '<rect class="figure-bed" x="-44" y="-72" width="88" height="144" rx="12"/>';
+const POSES = [
+  { name:"左側躺", hint:"身體轉向左邊，左手臂在下方。", svg: BED +
+    '<g class="figure-body"><circle cx="-4" cy="-46" r="15"/><rect x="-13" y="-30" width="26" height="60" rx="13"/></g>' +
+    '<circle class="figure-face" cx="-11" cy="-48" r="2.6"/>' +
+    '<path class="figure-line" d="M-13 -18 L-26 -4 M-9 30 L-22 46 M2 30 L-10 48"/>' },
+  { name:"俯臥（趴著）", hint:"臉朝下趴著，兩手放在頭旁邊。", svg: BED +
+    '<g class="figure-body"><circle cx="0" cy="-46" r="15"/><rect x="-17" y="-30" width="34" height="60" rx="14"/></g>' +
+    '<path class="figure-line" d="M-9 -55 a10 10 0 0 1 18 0"/>' +
+    '<path class="figure-line" d="M-17 -22 L-32 -38 M17 -22 L32 -38 M-8 30 L-10 50 M8 30 L10 50"/>' },
+  { name:"右側躺", hint:"身體轉向右邊，右手臂在下方。", svg: BED +
+    '<g class="figure-body"><circle cx="4" cy="-46" r="15"/><rect x="-13" y="-30" width="26" height="60" rx="13"/></g>' +
+    '<circle class="figure-face" cx="11" cy="-48" r="2.6"/>' +
+    '<path class="figure-line" d="M13 -18 L26 -4 M9 30 L22 46 M-2 30 L10 48"/>' },
+  { name:"平躺", hint:"臉朝上，手腳自然放鬆。", svg: BED +
+    '<g class="figure-body"><circle cx="0" cy="-46" r="15"/><rect x="-17" y="-30" width="34" height="60" rx="14"/></g>' +
+    '<circle class="figure-face" cx="-5.5" cy="-49" r="2.6"/><circle class="figure-face" cx="5.5" cy="-49" r="2.6"/>' +
+    '<path class="figure-line" d="M-17 -20 L-30 6 M17 -20 L30 6 M-8 30 L-11 52 M8 30 L11 52"/>' },
+  { name:"頭低腳高", hint:"頭下枕頭拿掉，上身平躺，雙腳墊高。", svg:
+    '<rect class="figure-bed" x="-80" y="34" width="160" height="14" rx="6"/>' +
+    '<rect class="pillow" x="34" y="21" width="48" height="13" rx="6"/>' +
+    '<rect class="pillow" x="37" y="8" width="43" height="13" rx="6"/>' +
+    '<path class="figure-limb" d="M2 24 L36 6 L64 4"/>' +
+    '<path class="figure-line" d="M64 4 L72 -4"/>' +
+    '<rect class="figure-body" x="-42" y="8" width="50" height="26" rx="12"/>' +
+    '<path class="figure-line" d="M-48 20 L-42 20"/>' +
+    '<circle class="figure-body" cx="-61" cy="20" r="14"/>' +
+    '<path class="arm" d="M-32 12 L-14 23 L0 14"/>' +
+    '<circle class="figure-face" cx="-66" cy="15" r="2.8"/>' +
+    '<rect class="pillow-off" x="-80" y="-18" width="40" height="14" rx="7"/>' +
+    '<path class="cross" d="M-66 -16 L-54 -6 M-54 -16 L-66 -6"/>' },
+  { name:"坐姿", hint:"坐起來，背靠著椅背或床頭。", svg:
+    '<path class="figure-bed" fill="none" d="M-46 46 L34 46 L34 62 M-46 46 L-46 -34 L-30 -34"/>' +
+    '<g class="figure-body"><circle cx="-14" cy="-40" r="15"/><rect x="-27" y="-24" width="26" height="54" rx="12"/>' +
+    '<rect x="-27" y="18" width="58" height="24" rx="12"/></g>' +
+    '<circle class="figure-face" cx="-7" cy="-42" r="2.6"/>' +
+    '<path class="figure-line" d="M-3 -14 L14 4 M31 34 L31 60"/>' }
+];
+const HOURGLASS = '<path class="hourglass" d="M-30 -55 L30 -55 L30 -40 L4 -6 L4 6 L30 40 L30 55 L-30 55 L-30 40 L-4 6 L-4 -6 L-30 -40 Z"/>' +
+  '<path class="figure-body" d="M-22 40 L22 40 L22 50 L-22 50 Z"/>';
+
+const C = 2 * Math.PI * 90;
+let state = "idle", startAt = 0, pausedFor = 0, pauseAt = 0, poseIdx = -1, tick = null, wakeLock = null;
+const turnOn = () => $("#optTurn").checked;
+/* 六個姿勢各停留一段，總時間 = 每段時間 × 6 */
+const turnMs = () => parseInt($("#turnMin").value,10) * 60000;
+const totalMs = () => turnMs() * POSES.length;
+const segCount = () => turnOn() ? POSES.length : 1;
+const segMs = () => turnOn() ? turnMs() : totalMs();
+const elapsed = () => state === "paused" ? pauseAt - startAt - pausedFor : Date.now() - startAt - pausedFor;
+
+function drawPose(idx){
+  const i = idx % POSES.length;
+  const f = $("#figure");
+  f.style.opacity = 0;
+  setTimeout(()=>{
+    f.innerHTML = turnOn() ? POSES[i].svg : HOURGLASS;
+    f.style.transition = "opacity .3s"; f.style.opacity = 1;
+  }, 120);
+  if (turnOn()){
+    $("#poseName").textContent = POSES[i].name;
+    $("#poseHint").textContent = POSES[i].hint;
+  } else {
+    $("#poseName").textContent = "安靜等待";
+    $("#poseHint").textContent = "找一個舒服的姿勢，坐著、躺著或走動都可以。";
+  }
+  $$("#steps .step").forEach((el,k) => {
+    el.className = "step" + (k < idx ? " done" : k === idx ? " now" : "");
+    el.style.display = turnOn() ? "" : "none";
+  });
+}
+function beep(){
+  if (!$("#optSound").checked) return;
+  try{
+    const ctx = beep.ctx || (beep.ctx = new (window.AudioContext||window.webkitAudioContext)());
+    if (ctx.state === "suspended") ctx.resume();
+    [0,.45,.9].forEach(d => {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = "sine"; o.frequency.value = 784;
+      g.gain.setValueAtTime(0.001, ctx.currentTime+d);
+      g.gain.exponentialRampToValueAtTime(0.35, ctx.currentTime+d+.04);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+d+.32);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(ctx.currentTime+d); o.stop(ctx.currentTime+d+.35);
+    });
+  }catch(e){}
+}
+const buzz = () => { if (navigator.vibrate) navigator.vibrate([300,150,300]); };
+function notify(title, body){
+  try{
+    if (window.Notification && Notification.permission === "granted"){
+      if (navigator.serviceWorker && navigator.serviceWorker.ready){
+        navigator.serviceWorker.ready.then(r => r.showNotification(title,
+          { body, icon:"./icons/icon-192.png", tag:"bcg" })).catch(()=>{});
+      } else new Notification(title, { body });
+    }
+  }catch(e){}
+}
+function setWake(msg, warn){
+  const el = $("#wakeStatus");
+  if (!el) return;
+  el.textContent = msg;
+  el.style.color = warn ? "var(--clay)" : "var(--muted)";
+}
+async function keepAwake(on){
+  if (!on || !$("#optAwake").checked){
+    try{ if (wakeLock){ await wakeLock.release(); } }catch(e){}
+    wakeLock = null; setWake("", false); return;
+  }
+  if (!("wakeLock" in navigator)){
+    setWake("這支手機不支援自動保持螢幕，請先把螢幕自動鎖定時間調長，或計時中偶爾碰一下螢幕。", true);
+    return;
+  }
+  try{
+    if (wakeLock) return;
+    wakeLock = await navigator.wakeLock.request("screen");
+    wakeLock.addEventListener("release", () => { wakeLock = null; });
+    setWake("螢幕會保持亮著，計時結束後自動恢復。", false);
+  }catch(e){
+    wakeLock = null;
+    setWake("無法保持螢幕亮著（可能開了省電模式）。請把螢幕自動鎖定時間調長。", true);
+  }
+}
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState !== "visible") return;
+  if (state === "running"){ keepAwake(true); render(); }
+});
+
+function render(){
+  const el = elapsed(), total = totalMs();
+  if (el >= total){ finish(); return; }
+  const i = Math.min(segCount()-1, Math.floor(el / segMs()));
+  if (i !== poseIdx){
+    const first = poseIdx === -1;
+    poseIdx = i; drawPose(i);
+    if (!first && turnOn()){
+      beep(); buzz();
+      const pz = POSES[i % POSES.length];
+      notify("該換姿勢了", "請改成「" + pz.name + "」，" + pz.hint);
+    }
+  }
+  const leftAll = total - el;
+  if (turnOn()){
+    $("#count").textContent = mmss(segMs() - (el % segMs()));
+    $("#countLabel").textContent = "距離下次翻身 · 全部還剩 " + Math.ceil(leftAll/60000) + " 分鐘";
+  } else {
+    $("#count").textContent = mmss(leftAll);
+    $("#countLabel").textContent = "藥物停留時間　滿 1 小時就有效果";
+  }
+  $("#ring").style.strokeDashoffset = C * (1 - el/total);
+}
+/* 依總時間與翻身間隔，即時算出這次會怎麼進行 */
+function updatePlan(){
+  const box = $("#planNote");
+  if (!box) return;
+  const turn = parseInt($("#turnMin").value,10);
+  const total = turn * POSES.length;
+  const h = Math.floor(total/60), m = total % 60;
+  const span = h ? (m ? h + " 小時 " + m + " 分" : h + " 小時") : total + " 分鐘";
+  box.textContent = turnOn()
+    ? "六個姿勢各停留 " + turn + " 分鐘，藥物總共停留 " + span + "。"
+    : "藥物停留 " + span + "，不提醒翻身。";
+}
+function buildSteps(){
+  const n = turnOn() ? segCount() : 0;
+  $("#steps").innerHTML = Array.from({length:n}, () => '<span class="step"></span>').join("");
+}
+function setBtns(){
+  $("#btnMain").textContent = state === "running" ? "暫停" : state === "paused" ? "繼續"
+    : state === "done" ? "再做一次" : "開始計時";
+  $("#clock").classList.toggle("paused", state === "paused");
+  $("#btnNext").style.display = turnOn() ? "" : "none";
+}
+function start(){
+  if (window.Notification && Notification.permission === "default") Notification.requestPermission().catch(()=>{});
+  if (beep.ctx && beep.ctx.resume) beep.ctx.resume();
+  startAt = Date.now(); pausedFor = 0; poseIdx = -1; state = "running";
+  clearInterval(tick); tick = setInterval(render, 500);
+  render(); setBtns(); keepAwake(true);
+  /* 藥物此刻進入膀胱，6 小時消毒期同時起算；已在進行中則不重算 */
+  if (!bleachActive()) startBleach(true);
+  autoLogInstillation();
+  track("timer_start", { minutes: totalMs()/60000, turn: turnOn() ? "on" : "off" });
+}
+function pause(){ state = "paused"; pauseAt = Date.now(); setBtns(); keepAwake(false); }
+function resume(){ pausedFor += Date.now()-pauseAt; state = "running"; setBtns(); keepAwake(true); render(); }
+function finish(){
+  clearInterval(tick); state = "done"; poseIdx = -1;
+  $("#ring").style.strokeDashoffset = 0;
+  $("#count").textContent = "00:00";
+  $("#poseName").textContent = "時間到";
+  $("#poseHint").textContent = "可以去排尿了。";
+  $("#countLabel").textContent = "";
+  $$("#steps .step").forEach(el => el.className = "step done");
+  beep(); buzz(); notify("藥物停留時間結束", "可以排尿了。");
+  setBtns(); keepAwake(false);
+  track("timer_complete", { minutes: totalMs()/60000, turn: turnOn() ? "on" : "off" });
+  setTimeout(() => { gotoStage("home"); showVoidBanner(); }, 1600);
+}
+
+/* 切到指定階段（分頁按鈕與內容一起換） */
+function gotoStage(name){
+  $$("#segStage button").forEach(x => x.classList.toggle("on", x.dataset.s === name));
+  $$(".stage").forEach(x => x.classList.remove("on"));
+  $("#s-" + name).classList.add("on");
+  $$(".tab").forEach(x => {
+    const on = x.dataset.p === "today";
+    x.classList.toggle("on", on); x.setAttribute("aria-selected", on ? "true" : "false");
+  });
+  $$(".page").forEach(x => x.classList.remove("on"));
+  $("#p-today").classList.add("on");
+  if (typeof refresh === "function") refresh();
+  window.scrollTo(0,0);
+}
+function showVoidBanner(){
+  const b = $("#voidBanner");
+  b.style.display = "block";
+  b.onclick = () => { b.style.display = "none"; };
+}
+function reset(){
+  clearInterval(tick); state = "idle"; poseIdx = -1;
+  $("#ring").style.strokeDashoffset = C;
+  $("#count").textContent = "00:00";
+  $("#poseName").textContent = "還沒開始";
+  $("#poseHint").textContent = "拔掉導尿管後，按「開始計時」。";
+  $("#countLabel").textContent = "藥物停留時間";
+  $("#figure").innerHTML = "";
+  $$("#steps .step").forEach(el => { el.className = "step"; el.style.display = turnOn() ? "" : "none"; });
+  setBtns(); keepAwake(false);
+}
+$("#btnMain").onclick = () => { state === "running" ? pause() : state === "paused" ? resume() : start(); };
+$("#btnNext").onclick = () => {
+  if (state !== "running" && state !== "paused"){ toast("請先按開始計時"); return; }
+  const el = elapsed(), i = Math.floor(el/segMs());
+  startAt -= (i+1)*segMs() - el;
+  render();
+};
+$("#btnReset").onclick = () => {
+  if (state === "running" || state === "paused")
+    track("timer_abort", { after: Math.round(elapsed()/60000), planned: totalMs()/60000 });
+  reset();
+};
+$("#btnTest").onclick = () => { beep(); buzz(); toast("這就是提醒聲"); };
+function applyTimerSetting(){
+  const wasRunning = (state === "running" || state === "paused");
+  save(); updatePlan(); buildSteps(); reset();
+  if (wasRunning) toast("設定已更新，請重新按開始計時");
+}
+$("#turnMin").onchange = e => { data.opts.turnMin = e.target.value; applyTimerSetting(); };
+$("#optTurn").onchange = e => {
+  data.opts.turn = e.target.checked; save();
+  toast(e.target.checked ? "會提醒您翻身" : "只計時，不提醒翻身");
+  updatePlan(); buildSteps(); reset();
+};
+$("#optSound").onchange = e => { data.opts.sound = e.target.checked; save(); };
+$("#optAwake").onchange = e => { data.opts.awake = e.target.checked; save(); keepAwake(state==="running"); };
+
+/* ══ 返家：消毒倒數 ══ */
+const BLEACH_MS = 6*3600000;
+const bleachActive = () => data.bleachStart && (Date.now() - data.bleachStart < BLEACH_MS);
+function startBleach(silent){
+  data.bleachStart = Date.now(); data.bleachDone = false; save();
+  renderBleach(); track("bleach_start");
+  if (!silent) toast("開始計算 6 小時");
+}
+function renderBleach(){
+  const st = data.bleachStart, box = $("#bleachLeft"), txt = $("#bleachTxt");
+  const detail = $("#bleachDetail"), btn = $("#btnBleach");
+  if (!st){
+    box.style.fontSize = "22px"; box.textContent = "尚未開始";
+    txt.textContent = "按下「開始計時」後會自動開始算 6 小時。";
+    detail.style.display = "none"; btn.textContent = "現在開始算 6 小時";
+    return;
+  }
+  const left = st + BLEACH_MS - Date.now();
+  if (left <= 0){
+    box.style.fontSize = "22px"; box.textContent = "已結束";
+    txt.textContent = "6 小時已過，尿液不需要再特別處理。下次灌注時會重新開始計算。";
+    detail.style.display = "none"; btn.textContent = "現在開始算 6 小時";
+    if (!data.bleachDone){
+      data.bleachDone = true; save();
+      notify("消毒時間結束", "6 小時到了，尿液不用再加漂白水。");
+    }
+    return;
+  }
+  box.style.fontSize = "30px";
+  box.textContent = Math.floor(left/3600000) + ":" + pad(Math.floor(left/60000)%60);
+  txt.innerHTML = '<span class="badge">消毒期間</span> 返家後這段時間解尿要照下面做。';
+  detail.style.display = "block";
+  btn.textContent = "重新計算 6 小時";
+}
+$("#btnBleach").onclick = () => startBleach(false);
+
+/* ══ 返家：飲水 ══ */
+const CUP = 250;
+function renderWater(){
+  const k = todayKey(), goal = parseInt($("#waterGoal").value,10);
+  const cc = data.water[k] || 0;
+  $("#waterAmt").innerHTML = cc + "<small>cc</small>";
+  const cups = Math.round(goal/CUP);
+  $("#cups").innerHTML = Array.from({length:cups}, (_,i) =>
+    '<span class="cup' + (i < cc/CUP ? " full" : "") + '"></span>').join("");
+  const left = goal - cc;
+  $("#waterTxt").textContent = left > 0
+    ? "目標 " + goal + " cc，還差 " + left + " cc。尿液顏色變淡表示喝夠了。"
+    : "今天的目標已經達成。";
+}
+$("#btnCupAdd").onclick = () => {
+  const k = todayKey(); data.water[k] = (data.water[k]||0) + CUP; save(); renderWater();
+  track("water_add", { total: data.water[k] });
+};
+$("#btnCupSub").onclick = () => {
+  const k = todayKey(); data.water[k] = Math.max(0,(data.water[k]||0) - CUP); save(); renderWater();
+};
+$("#waterGoal").onchange = e => { data.opts.goal = e.target.value; save(); renderWater(); };
+
+/* ══ 提醒：下次灌注與膀胱鏡 ══ */
+function nextDT(){
+  const d = $("#nextDate").value, t = $("#nextTime").value || "09:00";
+  if (!d) return null;
+  const p = d.split("-").map(Number), q = t.split(":").map(Number);
+  return new Date(p[0], p[1]-1, p[2], q[0], q[1]);
+}
+function renderNext(){
+  const dt = nextDT(), box = $("#nextCount"), txt = $("#nextTxt");
+  if (!dt){ box.textContent = "尚未設定"; box.style.fontSize = "20px";
+    txt.textContent = "設定後會顯示倒數，也可以加進手機行事曆。"; return; }
+  const diff = dt - Date.now(), days = Math.ceil(diff/86400000);
+  box.style.fontSize = "30px";
+  if (diff < -3600000){ box.textContent = "已過期"; box.style.fontSize = "22px";
+    txt.textContent = "完成了嗎？請到「紀錄」填上日期，並設定下一次。"; return; }
+  box.textContent = days <= 0 ? "今天" : "還有 " + days + " 天";
+  txt.textContent = (dt.getMonth()+1) + " 月 " + dt.getDate() + " 日 " + pad(dt.getHours()) + ":" +
+    pad(dt.getMinutes()) + (data.next.place ? "／" + data.next.place : "") + "。灌注前 4～6 小時開始不要喝水。";
+}
+function renderScope(){
+  const d = $("#scopeDate").value, box = $("#scopeCount");
+  if (!d){ box.textContent = "尚未設定"; box.style.fontSize = "20px"; return; }
+  const p = d.split("-").map(Number);
+  const dt = new Date(p[0], p[1]-1, p[2], 9);
+  const days = Math.ceil((dt - Date.now())/86400000);
+  box.style.fontSize = days < 0 ? "22px" : "30px";
+  box.textContent = days < 0 ? "已過期" : days === 0 ? "今天" : "還有 " + days + " 天";
+}
+$("#nextPlace").addEventListener("input", e => { data.next.place = e.target.value; save(); renderNext(); });
+["nextDate","nextTime"].forEach(id =>
+  $("#"+id).addEventListener("input", () => syncDT("next")));
+$("#scopeDate").addEventListener("input", e => { data.next.scope = e.target.value; save(); renderScope(); });
+
+const icsTime = d => d.getUTCFullYear() + pad(d.getUTCMonth()+1) + pad(d.getUTCDate()) + "T" +
+  pad(d.getUTCHours()) + pad(d.getUTCMinutes()) + "00Z";
+const esc = v => String(v||"").replace(/\\/g,"\\\\").replace(/;/g,"\\;").replace(/,/g,"\\,").replace(/\n/g,"\\n");
+
+/* RFC 5545 規定每行不超過 75 bytes，中文很容易超過，必須按 UTF-8 位元組邊界折行 */
+function fold(line){
+  const enc = new TextEncoder();
+  if (enc.encode(line).length <= 75) return line;
+  let out = "", cur = "", n = 0, limit = 75;
+  for (const ch of line){
+    const b = enc.encode(ch).length;
+    if (n + b > limit){ out += (out ? "\r\n " : "") + cur; cur = ch; n = b; limit = 74; }
+    else { cur += ch; n += b; }
+  }
+  return out + (out ? "\r\n " : "") + cur;
+}
+function buildICS(dt, title, desc, place, alarms){
+  const end = new Date(dt.getTime()+3600000);
+  const L = ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//BCG Helper//TW//ZH",
+    "CALSCALE:GREGORIAN","METHOD:PUBLISH","BEGIN:VEVENT",
+    "UID:" + Date.now() + "-" + Math.random().toString(36).slice(2) + "@bcg.local",
+    "DTSTAMP:" + icsTime(new Date()),"DTSTART:" + icsTime(dt),"DTEND:" + icsTime(end),
+    "SUMMARY:" + esc(title),"LOCATION:" + esc(place),"DESCRIPTION:" + esc(desc)];
+  alarms.forEach(a => L.push("BEGIN:VALARM", a[0],"ACTION:DISPLAY",
+    "DESCRIPTION:" + esc(a[1]),"END:VALARM"));
+  L.push("END:VEVENT","END:VCALENDAR");
+  return L.map(fold).join("\r\n") + "\r\n";
+}
+const isStandaloneIOS = () => window.navigator.standalone === true;
+function downloadICS(dt, title, desc, place, alarms, filename){
+  const ics = buildICS(dt, title, desc, place, alarms);
+  const blob = new Blob([ics], { type:"text/calendar;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename; a.rel = "noopener";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 8000);
+  toast(isStandaloneIOS() ? "若沒有反應，請改按「用 Google 日曆」" : "已下載，請開啟檔案加入行事曆");
+}
+function gcalURL(dt, title, desc, place){
+  const end = new Date(dt.getTime()+3600000);
+  return "https://calendar.google.com/calendar/render?action=TEMPLATE" +
+    "&text=" + encodeURIComponent(title) +
+    "&dates=" + icsTime(dt) + "/" + icsTime(end) +
+    "&details=" + encodeURIComponent(desc) +
+    "&location=" + encodeURIComponent(place||"");
+}
+const INST_DESC = "灌注前 4～6 小時不要喝水（吃藥可用少量水吞服），進治療室前先排尿。";
+/* 早上的灌注，往前推 5 小時會落在半夜。改成前一晚 21:00 提醒，隔天起床後不再喝水 */
+function instAlarms(dt){
+  const a = [["TRIGGER:-P1D","明天要灌卡介苗，記得先安排時間"]];
+  if (dt.getHours() < 12){
+    const eve = new Date(dt); eve.setDate(eve.getDate()-1); eve.setHours(21,0,0,0);
+    a.push(["TRIGGER;VALUE=DATE-TIME:" + icsTime(eve),
+      "明早 " + pad(dt.getHours()) + ":" + pad(dt.getMinutes()) + " 要灌卡介苗，起床後就不要再喝水了"]);
+  } else {
+    a.push(["TRIGGER:-PT5H","開始不要喝水，準備灌卡介苗"]);
+  }
+  return a;
+}
+const SCOPE_ALARMS = [["TRIGGER:-P7D","一週後要做膀胱鏡"],["TRIGGER:-P1D","明天要做膀胱鏡"]];
+const SCOPE_DESC = "膀胱癌追蹤檢查，請依醫囑準備。";
+function scopeDT(){
+  const d = $("#scopeDate").value;
+  if (!d) return null;
+  const p = d.split("-").map(Number);
+  return new Date(p[0], p[1]-1, p[2], 9);
+}
+$("#btnICS").onclick = () => {
+  const dt = nextDT();
+  if (!dt){ toast("請先選日期"); return; }
+  downloadICS(dt, "卡介苗膀胱灌注", INST_DESC, $("#nextPlace").value, instAlarms(dt), "卡介苗灌注.ics");
+  track("calendar_add", { kind:"instillation", via:"ics" });
+};
+$("#btnGCal").onclick = () => {
+  const dt = nextDT();
+  if (!dt){ toast("請先選日期"); return; }
+  window.open(gcalURL(dt, "卡介苗膀胱灌注", INST_DESC, $("#nextPlace").value), "_blank", "noopener");
+  track("calendar_add", { kind:"instillation", via:"gcal" });
+};
+$("#btnScopeICS").onclick = () => {
+  const dt = scopeDT();
+  if (!dt){ toast("請先選日期"); return; }
+  downloadICS(dt, "膀胱鏡追蹤檢查", SCOPE_DESC, "", SCOPE_ALARMS, "膀胱鏡追蹤.ics");
+};
+$("#btnScopeGCal").onclick = () => {
+  const dt = scopeDT();
+  if (!dt){ toast("請先選日期"); return; }
+  window.open(gcalURL(dt, "膀胱鏡追蹤檢查", SCOPE_DESC, ""), "_blank", "noopener");
+};
+
+
+/* ══ 紀錄：副作用 ══ */
+/* 0=一般　1=需要建議與聯絡　2=立刻就醫 */
+const SX = [
+  ["排尿灼痛",0],["頻尿",0],["急尿",0],["夜尿",0],["下腹不適",0],["疲倦",0],
+  ["頭痛",0],["肌肉痠痛",0],["噁心",0],["輕微血尿",0],
+  ["發燒 38.5°C 以上",1],["畏寒發抖",1],["皮疹或搔癢",1],["關節疼痛",1],["咳嗽",1],["盜汗",1],
+  ["呼吸困難",2],["臉部腫脹",2],["大量血尿",2],["解不出尿",2]
+];
+
+/* 各症狀對應的自我照顧建議 */
+const SX_TIP = {
+  "發燒 38.5°C 以上":
+    "多休息、多喝水，可服用醫師處方的退燒藥，並記下體溫和量測時間。發燒在卡介苗治療後很常見，多數一兩天內緩解。" +
+    "但若<b>超過 39.5°C 且持續 12 小時</b>，或<b>超過 38.5°C 持續兩天</b>，請立刻就醫。",
+  "畏寒發抖":
+    "先保暖休息，並量一次體溫。畏寒常是發燒的前兆，<b>30 分鐘到 1 小時後再量一次</b>。若體溫升高，依發燒的方式處理。",
+  "皮疹或搔癢":
+    "避免抓破皮膚，穿寬鬆衣物，可用溫水沖洗。記下疹子出現的位置與時間，或拍照留存，回診時給醫師看。" +
+    "若同時出現呼吸困難或臉部腫脹，請立刻就醫。",
+  "關節疼痛":
+    "多休息，可服用醫師開立的止痛藥。記下是哪幾個關節、痛了幾天。",
+  "咳嗽":
+    "記錄咳嗽持續幾天、有沒有痰、有沒有合併發燒。",
+  "盜汗":
+    "記錄夜間出汗的情形與持續幾天，並量體溫。"
+};
+let sxPicked = new Set(), sevPicked = 0;
+$("#sxChips").innerHTML = SX.map((s,i) =>
+  '<button class="chip' + (s[1] === 2 ? " warn" : s[1] === 1 ? " mid" : "") +
+  '" data-i="' + i + '">' + s[0] + '</button>').join("");
+$$("#sxChips .chip").forEach(b => b.onclick = () => {
+  const i = +b.dataset.i;
+  if (sxPicked.has(i)) sxPicked.delete(i); else sxPicked.add(i);
+  b.classList.toggle("on"); renderAdvice();
+});
+$$("#sevBtns button").forEach(b => b.onclick = () => {
+  $$("#sevBtns button").forEach(x => x.classList.remove("on"));
+  b.classList.add("on"); sevPicked = +b.dataset.v; renderAdvice();
+});
+function renderAdvice(){
+  const box = $("#advice");
+  if (!sxPicked.size && !sevPicked){ box.className = "advice"; return; }
+  const names = Array.from(sxPicked).map(i => SX[i][0]);
+  const lvl = Array.from(sxPicked).reduce((m,i) => Math.max(m, SX[i][1]), 0);
+  const fever = names.includes("發燒 38.5°C 以上");
+  const chest = names.includes("咳嗽") || names.includes("盜汗");
+  /* 發燒合併咳嗽或盜汗，是全身反應的典型組合；病人自述受不了也一併升級 */
+  const urgent = lvl === 2 || (fever && chest) || (lvl === 1 && sevPicked === 3);
+
+  box.className = "advice on";
+  if (urgent){
+    box.classList.add("stop");
+    box.innerHTML = "<b>請立刻就醫或掛急診。</b><br>" +
+      (fever && chest ? "發燒合併咳嗽或盜汗，需要醫師盡快評估。" :
+       "呼吸困難、臉部腫脹、大量血尿或解不出尿，都需要醫師立刻處理，不要自己觀察。") +
+      '<div style="margin-top:10px"><a class="btn" href="tel:0975361081" ' +
+      'style="display:block;text-align:center;text-decoration:none;background:var(--clay)">撥打個管師 0975-361081</a></div>';
+  } else if (lvl === 1){
+    box.classList.add("hold");
+    const tips = names.filter(x => SX_TIP[x])
+      .map(x => '<div style="margin-top:10px"><b>' + x + '</b><br>' + SX_TIP[x] + '</div>').join("");
+    box.innerHTML = tips +
+      '<div style="margin-top:12px">如果持續或讓您擔心，可以打給我。</div>' +
+      '<div style="margin-top:8px"><a class="btn" href="tel:0975361081" ' +
+      'style="display:block;text-align:center;text-decoration:none;background:var(--amber)">撥打個管師 0975-361081</a></div>';
+  } else if (sevPicked === 2 || sevPicked === 3){
+    box.classList.add("hold");
+    box.innerHTML = "症狀超過兩天沒有緩解，請在下一次灌注前聯絡醫療團隊。" +
+      "醫師可以延後這一次或調整劑量——<b>暫停不等於停止治療</b>，多數人調整後都能把療程做完。" +
+      '<div style="margin-top:10px"><a class="btn" href="tel:0975361081" ' +
+      'style="display:block;text-align:center;text-decoration:none;background:var(--amber)">撥打個管師 0975-361081</a></div>';
+  } else {
+    box.classList.add("ok");
+    box.innerHTML = "這些是常見的反應，九成以上的人都會遇到，多數在幾天內緩解。" +
+      "請多休息、多喝水、避開咖啡與酒精，需要時服用醫師處方的止痛退燒藥。記下來，回診時給醫師看。";
+  }
+}
+function renderLogs(){
+  const list = data.logs.slice(-12).reverse();
+  $("#logList").innerHTML = list.length ? list.map(l =>
+    '<div class="logitem"><span class="d">' + l.d + '</span>　' + l.sx.join("、") +
+    '<div class="s">' + ["","輕微","明顯超過兩天","很不舒服"][l.v||0] + (l.n ? "　" + l.n : "") + '</div></div>'
+  ).join("") : '<div class="logitem s" style="color:var(--muted)">還沒有紀錄。</div>';
+}
+$("#btnSaveLog").onclick = () => {
+  if (!sxPicked.size && !$("#sxNote").value){ toast("請先選症狀或寫點什麼"); return; }
+  data.logs.push({ d: todayKey().slice(5), sx: Array.from(sxPicked).map(i => SX[i][0]),
+    v: sevPicked, n: $("#sxNote").value });
+  const names = Array.from(sxPicked).map(i => SX[i][0]);
+  const hit = names.length ? attachToInstillation(names, sevPicked) : null;
+  save(); renderLogs();
+  track("symptom_log", { severity: sevPicked, count: sxPicked.size });
+  sxPicked.clear(); sevPicked = 0;
+  $$("#sxChips .chip").forEach(b => b.classList.remove("on"));
+  $$("#sevBtns button").forEach(b => b.classList.remove("on"));
+  $("#sxNote").value = ""; $("#advice").className = "advice";
+  toast(hit ? "已記錄，並附到第 " + hit.n + " 次灌注" : "已記錄。還沒有對應的灌注紀錄");
+};
+
+/* ══ 療程表 ══ */
+function row(bucket, n){
+  const v = data[bucket][n] || {};
+  return '<tr><td class="n">第 ' + n + ' 次</td>' +
+    '<td><input type="date" data-b="' + bucket + '" data-n="' + n + '" data-f="d" value="' + (v.d||"") + '"></td>' +
+    '<td><input type="text" data-b="' + bucket + '" data-n="' + n + '" data-f="m" value="' +
+      (v.m||"").replace(/"/g,"&quot;") + '" placeholder="例：發燒一天"></td></tr>';
+}
+const GROUPS = [["第 3 個月",[7,8,9]],["第 6 個月",[10,11,12]],["第 12 個月",[13,14,15]],
+  ["第 18 個月",[16,17,18]],["第 24 個月",[19,20,21]]];
+
+function renderTables(){
+  $("#tbInduction").innerHTML = [1,2,3,4,5,6].map(n => row("induction",n)).join("");
+  $("#tbMaint").innerHTML = GROUPS.map(g =>
+    '<div class="group-h" style="background:var(--amber-soft);color:var(--amber)">' + g[0] + '　每週 1 次，共 3 次</div>' +
+    '<table><thead><tr><th>次數</th><th>日期</th><th>灌注後不適</th></tr></thead><tbody>' +
+    g[1].map(n => row("maint",n)).join("") + '</tbody></table>').join("");
+  $("#tbScope").innerHTML = Array.from({length:8}, (_,k) => {
+    const a = k+1, b = k+9, va = data.scope[a]||{}, vb = data.scope[b]||{};
+    return '<tr><td class="n">第 ' + a + ' 次</td>' +
+      '<td><input type="date" data-b="scope" data-n="' + a + '" data-f="d" value="' + (va.d||"") + '"></td>' +
+      '<td class="n">第 ' + b + ' 次</td>' +
+      '<td><input type="date" data-b="scope" data-n="' + b + '" data-f="d" value="' + (vb.d||"") + '"></td></tr>';
+  }).join("");
+}
+
+/* ══ 灌注紀錄自動化 ══ */
+const ALL_SLOTS = [["induction",[1,2,3,4,5,6]],
+  ["maint",[7,8,9,10,11,12,13,14,15,16,17,18,19,20,21]]];
+
+/* 按下開始計時時，把今天填進下一個還沒填的欄位 */
+function autoLogInstillation(){
+  const today = todayKey();
+  for (const [b, ns] of ALL_SLOTS)
+    for (const n of ns)
+      if ((data[b][n]||{}).d === today) return;
+  for (const [b, ns] of ALL_SLOTS){
+    for (const n of ns){
+      if (!(data[b][n]||{}).d){
+        data[b][n] = Object.assign({}, data[b][n], { d: today });
+        data.lastAuto = { b, n, d: today };
+        save(); renderTables(); showAutoNote();
+        toast("已記錄第 " + n + " 次灌注");
+        return;
+      }
+    }
+  }
+}
+function showAutoNote(){
+  const a = data.lastAuto, box = $("#autoNote");
+  if (!a || a.d !== todayKey()){ box.style.display = "none"; return; }
+  $("#autoNoteTxt").textContent = "已自動記錄今天是第 " + a.n + " 次灌注。";
+  box.style.display = "block";
+}
+
+/* 找最近一次灌注：日期不晚於今天，且相差七天以內 */
+function findRecentInstillation(){
+  const now = new Date(todayKey());
+  let best = null;
+  for (const [b, ns] of ALL_SLOTS){
+    for (const n of ns){
+      const d = (data[b][n]||{}).d;
+      if (!d) continue;
+      const diff = (now - new Date(d)) / 86400000;
+      if (diff >= 0 && diff <= 7 && (!best || d > best.d)) best = { b, n, d };
+    }
+  }
+  return best;
+}
+/* 把症狀摘要附到那一次的不適欄，已經寫過的症狀不重複附 */
+function attachToInstillation(names, sev){
+  const t = findRecentInstillation();
+  if (!t) return null;
+  const cur = (data[t.b][t.n].m || "").trim();
+  const fresh = names.filter(x => !cur.includes(x));
+  if (!fresh.length) return t;
+  const label = ["","輕微","超過兩天","很不舒服"][sev||0];
+  const piece = todayKey().slice(5).replace("-","/") + " " + fresh.join("、") + (label ? "（"+label+"）" : "");
+  data[t.b][t.n].m = cur ? cur + "；" + piece : piece;
+  save(); renderTables();
+  return t;
+}
+renderTables();
+document.addEventListener("input", e => {
+  const t = e.target;
+  if (!t.dataset || !t.dataset.b) return;
+  data[t.dataset.b][t.dataset.n] = data[t.dataset.b][t.dataset.n] || {};
+  data[t.dataset.b][t.dataset.n][t.dataset.f] = t.value;
+  save();
+});
+function buildSummary(){
+  const cnt = b => Object.values(data[b]||{}).filter(v => v.d).length;
+  const L = ["【卡介苗療程摘要】"];
+  if (data.code) L.push("病人代碼：" + data.code);
+  L.push("基本療程：已完成 " + cnt("induction") + " / 6 次");
+  L.push("維持治療：已完成 " + cnt("maint") + " / 15 次");
+  L.push("膀胱鏡追蹤：已完成 " + cnt("scope") + " 次");
+  const days = Object.keys(data.water||{}).length;
+  if (days) L.push("有記錄飲水的天數：" + days + " 天");
+  const logs = (data.logs||[]).slice(-10);
+  if (logs.length){
+    L.push("", "近期不適紀錄：");
+    logs.forEach(l => L.push("・" + l.d + "　" + l.sx.join("、") +
+      (l.v ? "（" + ["","輕微","超過兩天","很不舒服"][l.v] + "）" : "") + (l.n ? "　" + l.n : "")));
+  } else L.push("", "近期沒有記錄不適。");
+  L.push("", "（由病人自行記錄，供回診參考）");
+  return L.join("\n");
+}
+$("#btnSummary").onclick = async () => {
+  const box = $("#summaryBox");
+  box.value = buildSummary(); box.style.display = "block";
+  try{ await navigator.clipboard.writeText(box.value); toast("已複製，可以貼給個管師"); }
+  catch(e){ box.select(); toast("請長按選取後複製"); }
+  track("summary_generate");
+};
+$("#patCode").value = data.code || "";
+$("#patCode").addEventListener("input", e => { data.code = e.target.value.trim(); save(); });
+
+$("#btnImport").onclick = () => $("#fileImport").click();
+$("#fileImport").onchange = e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try{
+      const o = JSON.parse(r.result);
+      if (!o || typeof o !== "object" || !("induction" in o)) throw new Error("格式不符");
+      if (!confirm("這會覆蓋目前手機上的所有紀錄，確定要還原嗎？")) return;
+      data = Object.assign({ induction:{}, maint:{}, scope:{}, next:{}, contact:{},
+        opts:{}, checks:{}, water:{}, logs:[] }, o);
+      save();
+      toast("已還原，正在重新載入");
+      setTimeout(()=>location.reload(), 900);
+    }catch(err){ toast("這個檔案讀不進來，請確認是本 App 的備份檔"); }
+  };
+  r.readAsText(f);
+  e.target.value = "";
+};
+
+$("#btnUndoAuto").onclick = () => {
+  const a = data.lastAuto;
+  if (!a) return;
+  if (data[a.b] && data[a.b][a.n]) delete data[a.b][a.n];
+  delete data.lastAuto;
+  save(); renderTables(); $("#autoNote").style.display = "none";
+  toast("已刪掉這筆");
+};
+$("#btnPrint").onclick = () => window.print();
+$("#btnExport").onclick = () => {
+  const url = URL.createObjectURL(new Blob([JSON.stringify(data,null,2)], { type:"application/json" }));
+  const a = document.createElement("a"); a.href = url; a.download = "卡介苗紀錄備份.json"; a.click();
+  setTimeout(()=>URL.revokeObjectURL(url), 4000);
+  toast("已下載備份檔");
+};
+
+/* ══ 分頁 ══ */
+$$(".tab").forEach(b => b.onclick = () => {
+  $$(".tab").forEach(x => { x.classList.remove("on"); x.setAttribute("aria-selected","false"); });
+  b.classList.add("on"); b.setAttribute("aria-selected","true");
+  $$(".page").forEach(p => p.classList.remove("on"));
+  $("#p-" + b.dataset.p).classList.add("on");
+  window.scrollTo(0,0);
+});
+
+/* ══ 起始 ══ */
+
+const showToday = () => { $("#todayStr").textContent =
+  new Date().toLocaleDateString("zh-TW",{month:"long",day:"numeric",weekday:"short"}); };
+showToday();
+let lastDay = todayKey();
+if (data.opts.turnMin) $("#turnMin").value = data.opts.turnMin;
+if (data.opts.turn === false) $("#optTurn").checked = false;
+updatePlan(); buildSteps();
+if (data.opts.turn === false) $("#optTurn").checked = false;
+if (data.opts.sound === false) $("#optSound").checked = false;
+if (data.opts.awake === false) $("#optAwake").checked = false;
+if (data.opts.goal) $("#waterGoal").value = data.opts.goal;
+
+$("#nextDate").value = data.next.date || todayKey();
+$("#nextTime").value = data.next.time || "09:00";
+$("#instDate").value = $("#nextDate").value;
+$("#instTime").value = $("#nextTime").value;
+$("#nextPlace").value = data.next.place || "";
+$("#scopeDate").value = data.next.scope || "";
+reset(); renderFast(); renderBleach(); renderWater(); renderNext(); renderScope(); renderLogs(); showAutoNote();
+/* 定期更新，並在跨過午夜時把日期與當日飲水一併重繪 */
+function refresh(){
+  showToday(); renderFast(); renderBleach(); renderNext();
+  if (todayKey() !== lastDay){ lastDay = todayKey(); renderWater(); }
+}
+setInterval(refresh, 30000);
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") refresh();
+});
+
+/* 未安裝到主畫面時，提醒使用者安裝，否則資料可能被瀏覽器自動清除 */
+(function(){
+  const installed = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone;
+  if (installed || data.a2hsHidden) return;
+  const ios = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  $("#a2hsHow").textContent = ios
+    ? "請按下方的分享鍵，選「加入主畫面」。"
+    : "請按右上角的選單，選「安裝應用程式」或「加到主畫面」。";
+  $("#a2hs").style.display = "block";
+  $("#a2hsClose").onclick = () => {
+    data.a2hsHidden = true; save();
+    $("#a2hs").style.display = "none";
+  };
+})();
+
+track("app_open", { mode: (window.matchMedia("(display-mode: standalone)").matches ||
+  window.navigator.standalone) ? "installed" : "browser" });
+
+if ("serviceWorker" in navigator){
+  window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+}
+</script>
+</body>
+</html>
