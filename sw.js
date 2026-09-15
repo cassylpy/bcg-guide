@@ -1,5 +1,5 @@
 /* 卡介苗灌注小幫手 — 離線快取 */
-const CACHE = "bcg-v5-8";
+const CACHE = "bcg-v6-8";
 const ASSETS = [
   "./",
   "./index.html",

@@ -171,6 +171,12 @@ textarea{width:100%;resize:vertical;min-height:64px;line-height:1.6}
 .section-h{font-family:var(--serif);font-size:22px;font-weight:700;margin:26px 0 10px}
 .note{background:var(--pine-soft);border-radius:11px;padding:13px 15px;font-size:15.5px;color:var(--pine-deep)}
 .note.amber{background:var(--amber-soft);color:#7A4508}
+.advisory{display:flex;align-items:center;justify-content:center;gap:8px;
+  margin:18px 0 2px;padding-top:15px;border-top:1px solid var(--line);
+  font-size:15px;color:#7A4508;letter-spacing:.01em;line-height:1.6}
+.advisory svg{width:19px;height:19px;flex:none;fill:none;stroke:var(--amber);
+  stroke-width:1.7;stroke-linecap:round}
+.advisory b{font-weight:700;color:#6B3D07}
 .warn{background:var(--clay-soft);border-left:5px solid var(--clay);border-radius:0 11px 11px 0;
   padding:14px 16px;margin-bottom:12px}
 .warn h3{font-size:17px;color:var(--clay);margin-bottom:6px;font-family:var(--sans);font-weight:700}
@@ -230,7 +236,7 @@ table input{font-size:15px;padding:6px 7px;width:100%;border-radius:7px}
 <body>
 
 <header class="topbar">
-  <h1>卡介苗灌注小幫手</h1>
+  <h1 id="appTitle">灌注小幫手</h1>
   <span class="sub" id="todayStr"></span>
 </header>
 
@@ -255,6 +261,14 @@ table input{font-size:15px;padding:6px 7px;width:100%;border-radius:7px}
 
   <!-- 灌注前 -->
   <div class="stage on" id="s-pre">
+    <div class="card" id="agentCard">
+      <h2>這次灌的是什麼藥</h2>
+      <p class="lead">選錯的話提醒內容會不一樣，不確定請問醫護人員。之後在這裡隨時可以改。</p>
+      <div class="seg" id="segAgent" style="margin-bottom:6px"></div>
+      <div id="agentFull" style="font-size:15px;color:var(--pine);font-weight:700;
+        background:var(--pine-soft);border-radius:9px;padding:10px 13px"></div>
+    </div>
+
     <div class="card">
       <h2>這次灌注時間</h2>
       <p class="lead">填上日期和時間，會提醒您什麼時候開始不要喝水。家屬也可以先幫病人設定好。</p>
@@ -270,14 +284,14 @@ table input{font-size:15px;padding:6px 7px;width:100%;border-radius:7px}
         background:var(--pine-soft);border-radius:9px;padding:9px 13px;margin-top:4px"></div>
       <div class="strip" style="margin-top:12px">
         <div class="big" id="fastCount">--</div>
-        <div class="txt" id="fastTxt">灌注前 4～6 小時開始不要喝水。膀胱裡的殘尿會把藥物稀釋掉，濃度不夠效果就會打折。吃藥可以用少量水吞服。</div>
+        <div class="txt" id="fastTxt">灌注前 4 小時開始不要喝水。膀胱裡的殘尿會把藥物稀釋掉，濃度不夠效果就會打折。吃藥可以用少量水吞服。</div>
       </div>
     </div>
 
     <div class="card">
       <h2>出門前確認</h2>
       <div class="check"><input type="checkbox" data-ck="c1"><div class="t">
-        <b>已經 4～6 小時沒喝水</b><span>包括茶、咖啡和湯。需要吃藥時可以用少量水吞服，口渴可以漱口不吞下去。</span></div></div>
+        <b>已經 4 小時沒喝水</b><span>包括茶、咖啡和湯。需要吃藥時可以用少量水吞服，口渴可以漱口不吞下去。</span></div></div>
       <div class="check"><input type="checkbox" data-ck="c2"><div class="t">
         <b>進治療室前先排尿</b><span>把膀胱排空，藥物才不會被稀釋。</span></div></div>
       <div class="check"><input type="checkbox" data-ck="c3"><div class="t">
@@ -317,17 +331,18 @@ table input{font-size:15px;padding:6px 7px;width:100%;border-radius:7px}
         <button class="btn quiet" id="btnReset">重新開始</button>
         <button class="btn quiet" id="btnTest">試聽提醒聲</button>
       </div>
+
+      <div class="advisory">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.2"/><path d="M12 11v5.4"/><path d="M12 7.6h.01"/></svg>
+        <span>要不要翻身，請依照您的<b>醫療團隊指示</b></span>
+      </div>
     </div>
 
     <div class="card">
       <div class="setting">
         <label for="turnMin">多久換一次姿勢
           <span class="sublabel">六個姿勢各停留這麼久，總時間自動算出</span></label>
-        <select id="turnMin">
-          <option value="10">每 10 分鐘</option>
-          <option value="15">每 15 分鐘</option>
-          <option value="20" selected>每 20 分鐘</option>
-        </select>
+        <select id="turnMin"></select>
       </div>
       <div id="planNote" style="font-size:15px;color:var(--pine);font-weight:700;
         background:var(--pine-soft);border-radius:9px;padding:10px 13px;margin:6px 0 4px"></div>
@@ -347,9 +362,10 @@ table input{font-size:15px;padding:6px 7px;width:100%;border-radius:7px}
       <div id="wakeStatus" style="font-size:14px;color:var(--muted);padding-top:4px"></div>
     </div>
 
-    <div class="note">停留滿 1 小時就有治療效果，2 小時之內都算完成。真的忍不住可以提早解尿，不要因此中斷整個療程——請在下次回診時告訴醫護人員。</div>
+    <div class="note amber">如果醫師或護理人員請您變換姿勢，這裡會照時間提醒；如果沒有特別交代，可以把上面的「提醒翻身」關掉，找一個舒服的姿勢等到時間結束就好。</div>
 
-    <div class="note amber"><b>要不要翻身，請依照您的醫療團隊指示。</b>如果醫師或護理人員請您變換姿勢，這裡的提醒會照時間告訴您；如果沒有特別交代，可以把上面的「提醒翻身」關掉，找一個舒服的姿勢等到時間結束就好。</div>
+    <div class="note" style="margin-top:12px">停留滿 1 小時就有治療效果，2 小時之內都算完成。真的忍不住可以提早解尿，不要因此中斷整個療程——請在下次回診時告訴醫護人員。</div>
+
 
     <div class="note amber">計時期間請不要按電源鍵關掉螢幕。手機螢幕關掉後，翻身提醒有可能不會響，這是手機瀏覽器的限制。不過時間仍然照算，重新打開時會告訴您現在該是什麼姿勢。</div>
   </div>
@@ -361,7 +377,7 @@ table input{font-size:15px;padding:6px 7px;width:100%;border-radius:7px}
       可以去排尿了
     </div>
 
-    <div class="card">
+    <div class="card" id="guardCard">
       <h2>消毒倒數</h2>
       <div class="strip">
         <div class="big amber" id="bleachLeft">尚未開始</div>
@@ -380,7 +396,24 @@ table input{font-size:15px;padding:6px 7px;width:100%;border-radius:7px}
       <div class="btnrow"><button class="btn ghost wide" id="btnBleach">現在開始算 6 小時</button></div>
     </div>
 
-    <div class="card">
+    <div class="card" id="chemoCard" style="display:none">
+      <h2>灌注後的處理</h2>
+      <p class="lead">化療藥不是活菌，不會傳染給家人。下面這些是為了保護您自己的皮膚。</p>
+      <div class="check"><input type="checkbox" data-ck="m1"><div class="t">
+        <b>坐著解尿</b><span>男性也要坐著，避免噴濺。</span></div></div>
+      <div class="check"><input type="checkbox" data-ck="m2"><div class="t">
+        <b>用肥皂和清水清洗</b><span>排尿後洗手，並清洗生殖器與大腿內側。這能減少藥物殘留造成的皮膚刺激。</span></div></div>
+      <div class="check"><input type="checkbox" data-ck="m3"><div class="t">
+        <b>開始多喝水</b><span>治療當天多喝水，把殘餘的藥物沖出來。</span></div></div>
+      <div class="check"><input type="checkbox" data-ck="m4"><div class="t">
+        <b>檢查皮膚有沒有沾到藥</b><span>沾到請立刻用肥皂和水清洗。</span></div></div>
+      <div class="note" id="urineColorPost" style="margin-top:12px"></div>
+      <div class="note" style="margin-top:10px;background:var(--clay-soft);color:var(--clay)">
+        <b>藥物不慎濺到眼睛：立刻用清水持續沖洗 15 分鐘，並馬上聯絡醫療團隊。</b></div>
+      <div class="btnrow"><button class="btn quiet wide" id="btnClearChemo">清除勾選，準備下一次</button></div>
+    </div>
+
+    <div class="card" id="bcgPostCard">
       <h2>返家後排尿須知</h2>
       <div class="check"><input type="checkbox" data-ck="p1"><div class="t">
         <b>坐著解尿</b><span>男性也要坐著。站著解會噴濺，尿液裡有活的卡介苗菌。</span></div></div>
@@ -576,13 +609,48 @@ table input{font-size:15px;padding:6px 7px;width:100%;border-radius:7px}
 
 <!-- ══ 須知 ══ -->
 <section class="page" id="p-info">
-  <div class="card">
+  <div class="card" data-only="bcg">
     <h2>卡介苗是什麼</h2>
     <p>卡介苗（BCG）不是化學治療，是免疫治療。它原本是預防肺結核的疫苗，灌進膀胱可以刺激自己的免疫系統對抗表淺性膀胱腫瘤，是目前預防復發最有效的藥物。</p>
     <p style="margin-bottom:0">藥物是活的、毒性減弱的牛結核菌。極少因為膀胱灌注而讓人得到結核病，但排出的尿液含有活菌，需要照規定處理。</p>
   </div>
 
-  <div class="card">
+  <div class="card" data-only="chemo" style="display:none">
+    <h2 id="chemoWhatTitle">這個藥是什麼</h2>
+    <p id="chemoWhatBody">化學治療藥物，會抑制腫瘤細胞生長，用來降低膀胱癌的復發。</p>
+    <p>它<b>不是活菌，不會傳染給家人</b>。灌進膀胱後藥物只作用在膀胱內壁，很少被身體吸收，所以全身性的副作用少見。</p>
+    <p>但它是細胞毒性藥物，直接接觸皮膚會造成刺激，所以排尿後的清潔很重要。</p>
+    <div class="note" id="urineColorInfo"></div>
+  </div>
+
+  <div class="card" data-only="chemo" style="display:none">
+    <h2>療程怎麼安排</h2>
+    <dl>
+      <dt>基本療程</dt><dd>每週 1 次，連續 6 週。</dd>
+      <dt>維持治療</dt><dd>膀胱鏡檢查正常的話，接著每月 1 次，持續一年。</dd>
+      <dt>停留時間</dt><dd>藥物在膀胱停留 1 小時。超過 1 小時不會更有效，因為尿液會把藥物稀釋掉。</dd>
+    </dl>
+    <div class="note">撐不住 1 小時請告訴醫護人員，不要勉強。有方法可以幫忙，例如減少灌注量或使用藥物。</div>
+  </div>
+
+  <div class="card" data-only="chemo" style="display:none">
+    <h2>副作用</h2>
+    <p>大約十分之一的人會出現<b>化學性膀胱炎</b>：排尿灼痛、頻尿、急尿、下腹不適，有時有血尿或骨盆悶痛。這是藥物對膀胱的刺激，不是細菌感染，不需要自己吃抗生素。</p>
+    <p>大約十分之一的人會出現<b>皮膚反應</b>：疹子，或手掌、生殖器部位脫皮。這是這個藥物比較特別的副作用。</p>
+    <p style="margin-bottom:0">多數副作用出現在治療的前六個月。全身性的副作用很少見，因為藥物很少被身體吸收。</p>
+  </div>
+
+  <div class="card" data-only="chemo" style="display:none">
+    <h2>藥物碰到身體的處理</h2>
+    <ul>
+      <li><b>皮膚沾到</b>：立刻用肥皂和清水清洗。</li>
+      <li><b>濺到眼睛</b>：用清水持續沖洗 <b>15 分鐘</b>，並立刻聯絡醫療團隊。</li>
+      <li>排尿後用肥皂和清水清洗手部、生殖器與大腿內側。</li>
+    </ul>
+    <div class="note">這些是為了預防皮膚刺激，不是怕傳染。這個藥不會傳染給家人。</div>
+  </div>
+
+  <div class="card" data-only="bcg">
     <h2>治療時程</h2>
     <dl>
       <dt>什麼時候開始</dt><dd>切片檢查或經尿道腫瘤切除術後 2～4 週。</dd>
@@ -596,7 +664,7 @@ table input{font-size:15px;padding:6px 7px;width:100%;border-radius:7px}
   <div class="card">
     <h2>灌注前的準備</h2>
     <ul>
-      <li>前 4～6 小時儘量不要喝水，包括茶、咖啡和湯。咖啡因會利尿，影響比開水更大。</li>
+      <li>前 4 小時儘量不要喝水，包括茶、咖啡和湯。咖啡因會利尿，影響比開水更大。</li>
       <li><b>需要吃藥時可以用少量水吞服</b>，不要因為限水而停掉平常的慢性病藥。口渴時可以漱口，不要吞下去。</li>
       <li>進治療室前先排尿，把膀胱排空。</li>
       <li>正在吃的所有藥都要告訴醫師。免疫抑制劑、骨髓抑制劑、某些抗生素和放射線治療會影響卡介苗作用。</li>
@@ -618,7 +686,7 @@ table input{font-size:15px;padding:6px 7px;width:100%;border-radius:7px}
     <p style="margin-bottom:0">所以：<b>請依照您的醫療團隊指示</b>。如果團隊要求翻身，就照做，這支 App 會提醒您；如果覺得翻身太不舒服，或睡著了沒翻，不用焦慮，真正重要的是停留時間和完成整個療程。</p>
   </div>
 
-  <div class="card">
+  <div class="card" data-only="bcg">
     <h2>灌注後 6 小時的處理</h2>
     <p>尿液裡含有活的卡介苗菌，灌注後 6 小時內每一次排尿都要照下面做。</p>
     <ul>
@@ -632,7 +700,7 @@ table input{font-size:15px;padding:6px 7px;width:100%;border-radius:7px}
     <div class="note">清洗會陰不只是為了避免污染，也能減少藥物殘留對皮膚的刺激，讓灼痛感輕一些。</div>
   </div>
 
-  <div class="card">
+  <div class="card" data-only="bcg">
     <h2>常見副作用</h2>
     <p>大約七成的人會出現局部或全身的反應，最常見的是化學性膀胱炎（排尿灼痛、頻尿）和全身倦怠。副作用通常在治療當天比較明顯，接下來幾天減輕或消失。</p>
     <ul>
@@ -653,7 +721,7 @@ table input{font-size:15px;padding:6px 7px;width:100%;border-radius:7px}
       <dt>泌尿道感染</dt><dd>治療期間若發生細菌性泌尿道感染，醫師會先停止灌注，直到症狀完全緩解。</dd>
     </dl>
   </div>
-  <details class="refs">
+  <details class="refs" data-only="bcg">
     <summary>參考資料</summary>
     <p>本內容依院內「膀胱內卡介苗灌注須知」與藥品仿單整理，並對照下列指引與研究補充：</p>
     <ul>
@@ -668,6 +736,20 @@ table input{font-size:15px;padding:6px 7px;width:100%;border-radius:7px}
     </ul>
     <p style="margin-bottom:0">各國指引與藥品仿單在部分細節上並不一致。實際做法以您的醫療團隊指示為準；若內容與醫師交代的不同，請依醫師為準並告訴我們。</p>
   </details>
+
+  <details class="refs" data-only="chemo" style="display:none">
+    <summary>參考資料</summary>
+    <p>本內容依歐洲泌尿科護理學會 2026 年指引建立，並參考下列來源：</p>
+    <ul>
+      <li>歐洲泌尿科護理學會（EAUN）膀胱內灌注治療指引，2026 年版</li>
+      <li>歐洲泌尿科醫學會（EAU）非肌肉侵犯性膀胱癌指引</li>
+      <li>美國泌尿科醫學會（AUA）膀胱內給藥聲明，2020 年修訂</li>
+      <li>Shariat SF 等，膀胱內灌注藥物之更新回顧，Immunotherapy 2010（復發率數據來源）</li>
+      <li>Khan MZ 等，灌注治療操作之整合性回顧，Urol Res Pract 2026</li>
+      <li>Hariri MK 等，灌注期間變換姿勢之隨機對照試驗，Afr J Urol 2023</li>
+    </ul>
+    <p style="margin-bottom:0">實際做法以您的醫療團隊指示為準；若內容與醫師交代的不同，請依醫師為準並告訴我們。</p>
+  </details>
 </section>
 
 <!-- ══ 警訊 ══ -->
@@ -678,12 +760,24 @@ table input{font-size:15px;padding:6px 7px;width:100%;border-radius:7px}
       <h3>過敏反應</h3>
       <ul><li>呼吸困難、呼吸短促、哮喘</li><li>紅疹或蕁麻疹</li><li>臉部腫脹</li></ul>
     </div>
-    <div class="warn">
+    <div class="warn" data-only="bcg">
       <h3>可能是卡介苗感染</h3>
       <ul>
         <li>體溫超過 39.5°C 且持續 12 小時以上</li>
         <li>體溫超過 38.5°C 且持續 2 天以上</li>
         <li>咳嗽、盜汗、畏寒、極度疲倦、關節疼痛、皮膚癢</li>
+      </ul>
+    </div>
+    <div class="warn" data-only="chemo" style="display:none">
+      <h3>藥物接觸到眼睛</h3>
+      <ul style="margin-bottom:0">
+        <li>立刻用清水持續沖洗 <b>15 分鐘</b>，並馬上聯絡醫療團隊</li>
+      </ul>
+    </div>
+    <div class="warn" data-only="chemo" style="display:none">
+      <h3>發燒</h3>
+      <ul style="margin-bottom:0">
+        <li>體溫超過 38.5°C</li>
       </ul>
     </div>
     <div class="warn">
@@ -696,7 +790,7 @@ table input{font-size:15px;padding:6px 7px;width:100%;border-radius:7px}
     </div>
   </div>
 
-  <div class="card">
+  <div class="card" data-only="bcg">
     <h2>儘速就醫</h2>
     <ul>
       <li>眼睛或皮膚變黃</li>
@@ -705,13 +799,33 @@ table input{font-size:15px;padding:6px 7px;width:100%;border-radius:7px}
     </ul>
   </div>
 
-  <div class="card">
+  <div class="card" data-only="chemo" style="display:none">
+    <h2>儘速就醫</h2>
+    <ul>
+      <li>皮膚起水泡或破皮</li>
+      <li>手掌或生殖器部位大範圍脫皮</li>
+      <li>排尿不適持續超過 24 小時沒有改善</li>
+    </ul>
+  </div>
+
+  <div class="card" data-only="bcg">
     <h2>不必急著跑急診，但要記錄下來</h2>
     <ul style="margin-bottom:0">
       <li>解尿灼痛、頻尿在 1～2 天內緩解</li>
       <li>輕微發燒，吃退燒藥後改善</li>
       <li>尿液略帶血色但很快變清</li>
     </ul>
+    <div class="note" style="margin-top:12px">這些請記在「紀錄」頁，回診時給醫師看。症狀持續超過兩天，就要主動聯絡醫療團隊。</div>
+  </div>
+
+  <div class="card" data-only="chemo" style="display:none">
+    <h2>不必急著跑急診，但要記錄下來</h2>
+    <ul style="margin-bottom:0">
+      <li>解尿灼痛、頻尿在 1～2 天內緩解</li>
+      <li>下腹或骨盆悶痛</li>
+      <li>尿道口輕微紅腫刺痛</li>
+    </ul>
+    <div class="note" style="margin-top:12px" id="urineColorNote"></div>
     <div class="note" style="margin-top:12px">這些請記在「紀錄」頁，回診時給醫師看。症狀持續超過兩天，就要主動聯絡醫療團隊。</div>
   </div>
 
@@ -743,7 +857,7 @@ table input{font-size:15px;padding:6px 7px;width:100%;border-radius:7px}
     僅供衛教參考，不能取代醫師與護理人員的判斷。實際做法請以您的醫療團隊指示為準。<br><br>
     您填寫的日期、症狀與飲水紀錄只存在這支手機裡，不會傳送到任何地方。<br>
     本網站使用 Cloudflare 統計造訪人次，不使用 cookie，無法辨識您是誰，也不記錄病歷號或姓名。<br><br>
-    版本 v5.8（2026-09）
+    版本 v6.8（2026-09）
   </p>
 </section>
 
@@ -848,7 +962,7 @@ function renderFast(){
     return;
   }
   const now = new Date();
-  const stop = new Date(inst.getTime() - 5*3600000);
+  const stop = new Date(inst.getTime() - 4*3600000);
   const toStop = stop - now, toInst = inst - now;
   const odd = inst.getHours() < 6;
 
@@ -896,6 +1010,14 @@ $$("[data-ck]").forEach(el => {
     el.closest(".check").classList.toggle("done", el.checked);
   };
 });
+$("#btnClearChemo").onclick = () => {
+  ["m1","m2","m3","m4"].forEach(k => {
+    delete data.checks[k];
+    const el = document.querySelector('[data-ck="' + k + '"]');
+    if (el){ el.checked = false; el.closest(".check").classList.remove("done"); }
+  });
+  save(); toast("已清除，可以準備下一次");
+};
 $("#btnClearPost").onclick = () => {
   ["p1","p2","p3","p4"].forEach(k => {
     delete data.checks[k];
@@ -954,6 +1076,41 @@ const POSES = [
 ];
 const HOURGLASS = '<path class="hourglass" d="M-30 -55 L30 -55 L30 -40 L4 -6 L4 6 L30 40 L30 55 L-30 55 L-30 40 L-4 6 L-4 -6 L-30 -40 Z"/>' +
   '<path class="figure-body" d="M-22 40 L22 40 L22 50 L-22 50 Z"/>';
+
+/* ══ 藥物設定：差異集中於此，畫面一律讀設定值 ══ */
+const AGENTS = {
+  bcg: {
+    key:"bcg", family:"bcg", name:"卡介苗 BCG", short:"卡介苗", btn:"卡介苗",
+    full:"卡介苗 BCG",
+    turnOpts:[10,15,20], turnDefault:20,
+    guard:true, guardHours:6,
+    sx:null, tip:null, groups:null,
+    maintCount:15, urine:""
+  },
+  mmc: {
+    key:"mmc", family:"chemo", name:"排多癌", short:"化療灌注", btn:"排多癌",
+    full:"Mitomycin C（排多癌、密多邁）",
+    turnOpts:[10], turnDefault:10,
+    guard:false, guardHours:0,
+    sx:null, tip:null, groups:null,
+    maintCount:12,
+    urine:"這個藥本身是<b>藍色</b>的，灌注後前幾次解尿，尿液可能帶點藍綠色。" +
+          "這是藥物的顏色，不是血尿，通常一兩次排尿後就會消失。"
+  },
+  epi: {
+    key:"epi", family:"chemo", name:"益彼欣", short:"化療灌注", btn:"益彼欣",
+    full:"Epirubicin（益彼欣，俗稱小紅莓）",
+    turnOpts:[10], turnDefault:10,
+    guard:false, guardHours:0,
+    sx:null, tip:null, groups:null,
+    maintCount:12,
+    urine:"這個藥本身是<b>紅色</b>的，灌注後前幾次解尿，尿液可能偏紅或橘色。" +
+          "這是藥物的顏色，不是血尿，通常一兩次排尿後就會消失。"
+  }
+};
+const A = () => AGENTS[data.agent] || AGENTS.bcg;
+/* 兩種藥物的療程紀錄分開存放，切換時互不影響 */
+const bucket = b => (A().family === "chemo" ? "chemo_" : "") + b;
 
 const C = 2 * Math.PI * 90;
 let state = "idle", startAt = 0, pausedFor = 0, pauseAt = 0, poseIdx = -1, tick = null, wakeLock = null;
@@ -1094,7 +1251,7 @@ function start(){
   clearInterval(tick); tick = setInterval(render, 500);
   render(); setBtns(); keepAwake(true);
   /* 藥物此刻進入膀胱，6 小時消毒期同時起算；已在進行中則不重算 */
-  if (!bleachActive()) startBleach(true);
+  if (A().guard && !bleachActive()) startBleach(true);
   autoLogInstillation();
   track("timer_start", { minutes: totalMs()/60000, turn: turnOn() ? "on" : "off" });
 }
@@ -1180,6 +1337,7 @@ function startBleach(silent){
   if (!silent) toast("開始計算 6 小時");
 }
 function renderBleach(){
+  if (!A().guard) return;
   const st = data.bleachStart, box = $("#bleachLeft"), txt = $("#bleachTxt");
   const detail = $("#bleachDetail"), btn = $("#btnBleach");
   if (!st){
@@ -1247,7 +1405,7 @@ function renderNext(){
     txt.textContent = "完成了嗎？請到「紀錄」填上日期，並設定下一次。"; return; }
   box.textContent = days <= 0 ? "今天" : "還有 " + days + " 天";
   txt.textContent = (dt.getMonth()+1) + " 月 " + dt.getDate() + " 日 " + pad(dt.getHours()) + ":" +
-    pad(dt.getMinutes()) + (data.next.place ? "／" + data.next.place : "") + "。灌注前 4～6 小時開始不要喝水。";
+    pad(dt.getMinutes()) + (data.next.place ? "／" + data.next.place : "") + "。灌注前 4 小時開始不要喝水。";
 }
 function renderScope(){
   const d = $("#scopeDate").value, box = $("#scopeCount");
@@ -1310,7 +1468,7 @@ function gcalURL(dt, title, desc, place){
     "&details=" + encodeURIComponent(desc) +
     "&location=" + encodeURIComponent(place||"");
 }
-const INST_DESC = "灌注前 4～6 小時不要喝水（吃藥可用少量水吞服），進治療室前先排尿。";
+const INST_DESC = "灌注前 4 小時不要喝水（吃藥可用少量水吞服），進治療室前先排尿。";
 /* 早上的灌注，往前推 5 小時會落在半夜。改成前一晚 21:00 提醒，隔天起床後不再喝水 */
 function instAlarms(dt){
   const a = [["TRIGGER:-P1D","明天要灌卡介苗，記得先安排時間"]];
@@ -1319,7 +1477,7 @@ function instAlarms(dt){
     a.push(["TRIGGER;VALUE=DATE-TIME:" + icsTime(eve),
       "明早 " + pad(dt.getHours()) + ":" + pad(dt.getMinutes()) + " 要灌卡介苗，起床後就不要再喝水了"]);
   } else {
-    a.push(["TRIGGER:-PT5H","開始不要喝水，準備灌卡介苗"]);
+    a.push(["TRIGGER:-PT4H","開始不要喝水，準備灌卡介苗"]);
   }
   return a;
 }
@@ -1357,15 +1515,23 @@ $("#btnScopeGCal").onclick = () => {
 
 /* ══ 紀錄：副作用 ══ */
 /* 0=一般　1=需要建議與聯絡　2=立刻就醫 */
-const SX = [
+const SX_BCG = [
   ["排尿灼痛",0],["頻尿",0],["急尿",0],["夜尿",0],["下腹不適",0],["疲倦",0],
   ["頭痛",0],["肌肉痠痛",0],["噁心",0],["輕微血尿",0],
   ["發燒 38.5°C 以上",1],["畏寒發抖",1],["皮疹或搔癢",1],["關節疼痛",1],["咳嗽",1],["盜汗",1],
   ["呼吸困難",2],["臉部腫脹",2],["大量血尿",2],["解不出尿",2]
 ];
 
+/* 化療（MMC）：以局部刺激與皮膚反應為主，無全身免疫反應 */
+const SX_CHEMO = [
+  ["排尿灼痛",0],["頻尿",0],["急尿",0],["夜尿",0],["下腹不適",0],["輕微血尿",0],
+  ["皮疹或搔癢",1],["手掌或生殖器脫皮",1],["尿道口紅腫刺痛",1],["骨盆悶痛",1],
+  ["呼吸困難",2],["臉部腫脹",2],["大量血尿",2],["解不出尿",2],["藥物濺到眼睛",2]
+];
+const SX = () => A().sx;
+
 /* 各症狀對應的自我照顧建議 */
-const SX_TIP = {
+const SX_TIP_BCG = {
   "發燒 38.5°C 以上":
     "多休息、多喝水，可服用醫師處方的退燒藥，並記下體溫和量測時間。發燒在卡介苗治療後很常見，多數一兩天內緩解。" +
     "但若<b>超過 39.5°C 且持續 12 小時</b>，或<b>超過 38.5°C 持續兩天</b>，請立刻就醫。",
@@ -1381,15 +1547,30 @@ const SX_TIP = {
   "盜汗":
     "記錄夜間出汗的情形與持續幾天，並量體溫。"
 };
+
+const SX_TIP_CHEMO = {
+  "皮疹或搔癢":
+    "避免抓破皮膚，穿寬鬆衣物，可用溫水沖洗。記下疹子出現的位置與時間，或拍照留存，回診時給醫師看。" +
+    "若同時出現呼吸困難或臉部腫脹，請立刻就醫。",
+  "手掌或生殖器脫皮":
+    "這是這個藥物比較特別的反應。保持乾燥、避免刺激性清潔用品，記下範圍與出現時間。",
+  "尿道口紅腫刺痛":
+    "用溫水清洗、保持乾燥。排尿後記得用肥皂和清水清洗，可減少藥物殘留造成的刺激。",
+  "骨盆悶痛":
+    "休息、熱敷，記錄是否影響排尿。這多半是藥物對膀胱的化學性刺激，不是細菌感染。"
+};
+const SX_TIP = () => A().tip;
 let sxPicked = new Set(), sevPicked = 0;
-$("#sxChips").innerHTML = SX.map((s,i) =>
-  '<button class="chip' + (s[1] === 2 ? " warn" : s[1] === 1 ? " mid" : "") +
-  '" data-i="' + i + '">' + s[0] + '</button>').join("");
-$$("#sxChips .chip").forEach(b => b.onclick = () => {
-  const i = +b.dataset.i;
-  if (sxPicked.has(i)) sxPicked.delete(i); else sxPicked.add(i);
-  b.classList.toggle("on"); renderAdvice();
-});
+function renderChips(){
+  $("#sxChips").innerHTML = SX().map((s,i) =>
+    '<button class="chip' + (s[1] === 2 ? " warn" : s[1] === 1 ? " mid" : "") +
+    '" data-i="' + i + '">' + s[0] + '</button>').join("");
+  $$("#sxChips .chip").forEach(b => b.onclick = () => {
+    const i = +b.dataset.i;
+    if (sxPicked.has(i)) sxPicked.delete(i); else sxPicked.add(i);
+    b.classList.toggle("on"); renderAdvice();
+  });
+}
 $$("#sevBtns button").forEach(b => b.onclick = () => {
   $$("#sevBtns button").forEach(x => x.classList.remove("on"));
   b.classList.add("on"); sevPicked = +b.dataset.v; renderAdvice();
@@ -1397,10 +1578,11 @@ $$("#sevBtns button").forEach(b => b.onclick = () => {
 function renderAdvice(){
   const box = $("#advice");
   if (!sxPicked.size && !sevPicked){ box.className = "advice"; return; }
-  const names = Array.from(sxPicked).map(i => SX[i][0]);
-  const lvl = Array.from(sxPicked).reduce((m,i) => Math.max(m, SX[i][1]), 0);
+  const names = Array.from(sxPicked).map(i => SX()[i][0]);
+  const lvl = Array.from(sxPicked).reduce((m,i) => Math.max(m, SX()[i][1]), 0);
   const fever = names.includes("發燒 38.5°C 以上");
   const chest = names.includes("咳嗽") || names.includes("盜汗");
+  const eye = names.includes("藥物濺到眼睛");
   /* 發燒合併咳嗽或盜汗，是全身反應的典型組合；病人自述受不了也一併升級 */
   const urgent = lvl === 2 || (fever && chest) || (lvl === 1 && sevPicked === 3);
 
@@ -1408,14 +1590,15 @@ function renderAdvice(){
   if (urgent){
     box.classList.add("stop");
     box.innerHTML = "<b>請立刻就醫或掛急診。</b><br>" +
-      (fever && chest ? "發燒合併咳嗽或盜汗，需要醫師盡快評估。" :
+      (eye ? "請立刻用清水持續沖洗眼睛 15 分鐘，並馬上聯絡醫療團隊。" :
+       fever && chest ? "發燒合併咳嗽或盜汗，需要醫師盡快評估。" :
        "呼吸困難、臉部腫脹、大量血尿或解不出尿，都需要醫師立刻處理，不要自己觀察。") +
       '<div style="margin-top:10px"><a class="btn" href="tel:0975361081" ' +
       'style="display:block;text-align:center;text-decoration:none;background:var(--clay)">撥打個管師 0975-361081</a></div>';
   } else if (lvl === 1){
     box.classList.add("hold");
-    const tips = names.filter(x => SX_TIP[x])
-      .map(x => '<div style="margin-top:10px"><b>' + x + '</b><br>' + SX_TIP[x] + '</div>').join("");
+    const tips = names.filter(x => SX_TIP()[x])
+      .map(x => '<div style="margin-top:10px"><b>' + x + '</b><br>' + SX_TIP()[x] + '</div>').join("");
     box.innerHTML = tips +
       '<div style="margin-top:12px">如果持續或讓您擔心，可以打給我。</div>' +
       '<div style="margin-top:8px"><a class="btn" href="tel:0975361081" ' +
@@ -1441,9 +1624,9 @@ function renderLogs(){
 }
 $("#btnSaveLog").onclick = () => {
   if (!sxPicked.size && !$("#sxNote").value){ toast("請先選症狀或寫點什麼"); return; }
-  data.logs.push({ d: todayKey().slice(5), sx: Array.from(sxPicked).map(i => SX[i][0]),
+  data.logs.push({ d: todayKey().slice(5), sx: Array.from(sxPicked).map(i => SX()[i][0]),
     v: sevPicked, n: $("#sxNote").value });
-  const names = Array.from(sxPicked).map(i => SX[i][0]);
+  const names = Array.from(sxPicked).map(i => SX()[i][0]);
   const hit = names.length ? attachToInstillation(names, sevPicked) : null;
   save(); renderLogs();
   track("symptom_log", { severity: sevPicked, count: sxPicked.size });
@@ -1455,42 +1638,56 @@ $("#btnSaveLog").onclick = () => {
 };
 
 /* ══ 療程表 ══ */
-function row(bucket, n){
-  const v = data[bucket][n] || {};
+function row(kind, n){
+  const b = bucket(kind);
+  data[b] = data[b] || {};
+  const v = data[b][n] || {};
   return '<tr><td class="n">第 ' + n + ' 次</td>' +
-    '<td><input type="date" data-b="' + bucket + '" data-n="' + n + '" data-f="d" value="' + (v.d||"") + '"></td>' +
-    '<td><input type="text" data-b="' + bucket + '" data-n="' + n + '" data-f="m" value="' +
-      (v.m||"").replace(/"/g,"&quot;") + '" placeholder="例：發燒一天"></td></tr>';
+    '<td><input type="date" data-b="' + b + '" data-n="' + n + '" data-f="d" value="' + (v.d||"") + '"></td>' +
+    '<td><input type="text" data-b="' + b + '" data-n="' + n + '" data-f="m" value="' +
+      (v.m||"").replace(/"/g,"&quot;") + '" placeholder="例：排尿灼痛一天"></td></tr>';
 }
-const GROUPS = [["第 3 個月",[7,8,9]],["第 6 個月",[10,11,12]],["第 12 個月",[13,14,15]],
+const GROUPS_BCG = [["第 3 個月",[7,8,9]],["第 6 個月",[10,11,12]],["第 12 個月",[13,14,15]],
   ["第 18 個月",[16,17,18]],["第 24 個月",[19,20,21]]];
+/* MMC：誘導 6 次後每月 1 次持續一年 */
+const GROUPS_MMC = [["維持治療　每月 1 次，持續一年", [7,8,9,10,11,12,13,14,15,16,17,18]]];
+const GROUPS = () => A().groups;
+
+/* 症狀與療程資料定義完成後，綁定到藥物設定 */
+AGENTS.bcg.sx = SX_BCG;   AGENTS.bcg.tip = SX_TIP_BCG;   AGENTS.bcg.groups = GROUPS_BCG;
+["mmc","epi"].forEach(k => {
+  AGENTS[k].sx = SX_CHEMO; AGENTS[k].tip = SX_TIP_CHEMO; AGENTS[k].groups = GROUPS_MMC;
+});
 
 function renderTables(){
   $("#tbInduction").innerHTML = [1,2,3,4,5,6].map(n => row("induction",n)).join("");
-  $("#tbMaint").innerHTML = GROUPS.map(g =>
-    '<div class="group-h" style="background:var(--amber-soft);color:var(--amber)">' + g[0] + '　每週 1 次，共 3 次</div>' +
+  $("#tbMaint").innerHTML = GROUPS().map(g =>
+    '<div class="group-h" style="background:var(--amber-soft);color:var(--amber)">' + g[0] +
+    (A().family === "chemo" ? "" : "　每週 1 次，共 3 次") + '</div>' +
     '<table><thead><tr><th>次數</th><th>日期</th><th>灌注後不適</th></tr></thead><tbody>' +
     g[1].map(n => row("maint",n)).join("") + '</tbody></table>').join("");
+  const sb = bucket("scope");
+  data[sb] = data[sb] || {};
   $("#tbScope").innerHTML = Array.from({length:8}, (_,k) => {
-    const a = k+1, b = k+9, va = data.scope[a]||{}, vb = data.scope[b]||{};
+    const a = k+1, b = k+9, va = data[sb][a]||{}, vb = data[sb][b]||{};
     return '<tr><td class="n">第 ' + a + ' 次</td>' +
-      '<td><input type="date" data-b="scope" data-n="' + a + '" data-f="d" value="' + (va.d||"") + '"></td>' +
+      '<td><input type="date" data-b="' + sb + '" data-n="' + a + '" data-f="d" value="' + (va.d||"") + '"></td>' +
       '<td class="n">第 ' + b + ' 次</td>' +
-      '<td><input type="date" data-b="scope" data-n="' + b + '" data-f="d" value="' + (vb.d||"") + '"></td></tr>';
+      '<td><input type="date" data-b="' + sb + '" data-n="' + b + '" data-f="d" value="' + (vb.d||"") + '"></td></tr>';
   }).join("");
 }
 
 /* ══ 灌注紀錄自動化 ══ */
-const ALL_SLOTS = [["induction",[1,2,3,4,5,6]],
-  ["maint",[7,8,9,10,11,12,13,14,15,16,17,18,19,20,21]]];
+const slots = () => [[bucket("induction"),[1,2,3,4,5,6]],
+  [bucket("maint"), Array.from({length:A().maintCount}, (_,i) => i+7)]];
 
 /* 按下開始計時時，把今天填進下一個還沒填的欄位 */
 function autoLogInstillation(){
   const today = todayKey();
-  for (const [b, ns] of ALL_SLOTS)
+  for (const [b, ns] of slots())
     for (const n of ns)
       if ((data[b][n]||{}).d === today) return;
-  for (const [b, ns] of ALL_SLOTS){
+  for (const [b, ns] of slots()){
     for (const n of ns){
       if (!(data[b][n]||{}).d){
         data[b][n] = Object.assign({}, data[b][n], { d: today });
@@ -1513,7 +1710,7 @@ function showAutoNote(){
 function findRecentInstillation(){
   const now = new Date(todayKey());
   let best = null;
-  for (const [b, ns] of ALL_SLOTS){
+  for (const [b, ns] of slots()){
     for (const n of ns){
       const d = (data[b][n]||{}).d;
       if (!d) continue;
@@ -1546,11 +1743,18 @@ document.addEventListener("input", e => {
 });
 function buildSummary(){
   const cnt = b => Object.values(data[b]||{}).filter(v => v.d).length;
-  const L = ["【卡介苗療程摘要】"];
+  const L = ["【" + A().short + "療程摘要】"];
   if (data.code) L.push("病人代碼：" + data.code);
-  L.push("基本療程：已完成 " + cnt("induction") + " / 6 次");
-  L.push("維持治療：已完成 " + cnt("maint") + " / 15 次");
-  L.push("膀胱鏡追蹤：已完成 " + cnt("scope") + " 次");
+  L.push("基本療程：已完成 " + cnt(bucket("induction")) + " / 6 次");
+  L.push("維持治療：已完成 " + cnt(bucket("maint")) + " / " + A().maintCount + " 次");
+  L.push("膀胱鏡追蹤：已完成 " + cnt(bucket("scope")) + " 次");
+  /* 若曾使用另一種藥物，一併帶出 */
+  const other = A().family === "chemo" ? "" : "chemo_";
+  const oc = k => Object.values(data[other + k] || {}).filter(v => v.d).length;
+  if (oc("induction") || oc("maint")){
+    L.push("", "（另一段療程）" + (other ? "化療灌注" : "卡介苗") +
+      "：基本 " + oc("induction") + " 次、維持 " + oc("maint") + " 次");
+  }
   const days = Object.keys(data.water||{}).length;
   if (days) L.push("有記錄飲水的天數：" + days + " 天");
   const logs = (data.logs||[]).slice(-10);
@@ -1618,15 +1822,62 @@ $$(".tab").forEach(b => b.onclick = () => {
   window.scrollTo(0,0);
 });
 
+/* ══ 依藥物切換整個畫面 ══ */
+function applyAgent(){
+  const a = A();
+  $("#appTitle").textContent = a.short + "小幫手";
+
+  // 藥物選擇按鈕
+  $("#segAgent").innerHTML = Object.values(AGENTS).map(x =>
+    '<button data-a="' + x.key + '"' + (x.key === a.key ? ' class="on"' : '') +
+    '>' + x.btn + '</button>').join("");
+  $$("#segAgent button").forEach(b => b.onclick = () => {
+    if (data.agent === b.dataset.a) return;
+    data.agent = b.dataset.a; save(); applyAgent();
+    toast("已切換為" + A().full);
+  });
+
+  const af = $("#agentFull");
+  if (af) af.textContent = "目前選擇：" + a.full;
+
+  // 藥名與尿液顏色說明
+  ["#urineColorNote","#urineColorInfo","#urineColorPost"].forEach(sel => {
+    const el = $(sel); if (el) el.innerHTML = a.urine || "";
+  });
+  const t = $("#chemoWhatTitle"), bd = $("#chemoWhatBody");
+  if (t && a.family === "chemo"){
+    t.textContent = a.full + " 是什麼";
+    bd.innerHTML = a.key === "mmc"
+      ? "排多癌（Mitomycin C，也叫密多邁）是化學治療藥物，會抑制腫瘤細胞的 DNA 合成，可以把復發率從 54% 降到 38%。"
+      : "益彼欣（Epirubicin）是化學治療藥物，因為藥水是紅色的，也常被叫做小紅莓。副作用與排多癌相近，多在可忍受的範圍。";
+  }
+
+  // 翻身間隔選項
+  const cur = data.opts.turnMin;
+  $("#turnMin").innerHTML = a.turnOpts.map(v =>
+    '<option value="' + v + '">每 ' + v + ' 分鐘</option>').join("");
+  $("#turnMin").value = a.turnOpts.includes(+cur) ? cur : a.turnDefault;
+
+  // 返家頁：消毒倒數與排尿須知依藥物顯示
+  $("#guardCard").style.display   = a.guard ? "" : "none";
+  $("#bcgPostCard").style.display = a.guard ? "" : "none";
+  $("#chemoCard").style.display   = a.guard ? "none" : "";
+
+  // 僅適用某一類藥物的段落
+  $$("[data-only]").forEach(el => {
+    el.style.display = el.dataset.only === a.family ? "" : "none";
+  });
+
+  renderChips(); renderTables(); updatePlan(); buildSteps(); reset();
+  renderBleach(); renderLogs(); showAutoNote();
+  sxPicked.clear(); sevPicked = 0; $("#advice").className = "advice";
+}
 /* ══ 起始 ══ */
 
 const showToday = () => { $("#todayStr").textContent =
   new Date().toLocaleDateString("zh-TW",{month:"long",day:"numeric",weekday:"short"}); };
 showToday();
 let lastDay = todayKey();
-if (data.opts.turnMin) $("#turnMin").value = data.opts.turnMin;
-if (data.opts.turn === false) $("#optTurn").checked = false;
-updatePlan(); buildSteps();
 if (data.opts.turn === false) $("#optTurn").checked = false;
 if (data.opts.sound === false) $("#optSound").checked = false;
 if (data.opts.awake === false) $("#optAwake").checked = false;
@@ -1638,7 +1889,8 @@ $("#instDate").value = $("#nextDate").value;
 $("#instTime").value = $("#nextTime").value;
 $("#nextPlace").value = data.next.place || "";
 $("#scopeDate").value = data.next.scope || "";
-reset(); renderFast(); renderBleach(); renderWater(); renderNext(); renderScope(); renderLogs(); showAutoNote();
+applyAgent();
+renderFast(); renderWater(); renderNext(); renderScope();
 /* 定期更新，並在跨過午夜時把日期與當日飲水一併重繪 */
 function refresh(){
   showToday(); renderFast(); renderBleach(); renderNext();
